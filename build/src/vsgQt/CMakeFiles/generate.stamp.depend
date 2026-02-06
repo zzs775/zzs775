@@ -1,0 +1,15 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-4.2/Modules/BasicConfigVersion-SameMajorVersion.cmake.in
+C:/Program Files/CMake/share/cmake-4.2/Modules/CMakePackageConfigHelpers.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/CheckCCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/CheckCSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/CheckCXXCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/CheckCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/CheckSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/GenerateExportHeader.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/Internal/CheckCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/Internal/CheckSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/WriteBasicConfigVersionFile.cmake
+C:/Program Files/CMake/share/cmake-4.2/Modules/exportheader.cmake.in
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/src/vsgQt/CMakeLists.txt
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/src/vsgQt/vsgQtConfig.cmake.in

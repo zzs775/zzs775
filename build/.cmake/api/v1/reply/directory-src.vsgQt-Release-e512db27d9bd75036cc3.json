@@ -1,0 +1,138 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install",
+			"add_library_export_header",
+			"vsg_add_cmake_support_files"
+		],
+		"files" : 
+		[
+			"src/vsgQt/CMakeLists.txt",
+			"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/vsg/vsgMacros.cmake"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 74,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 27,
+				"parent" : 1
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 76,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 77,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 79,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 1,
+				"line" : 124,
+				"parent" : 5
+			},
+			{
+				"command" : 0,
+				"file" : 1,
+				"line" : 137,
+				"parent" : 5
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "include/vsgQt",
+			"paths" : 
+			[
+				"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/include/vsgQt/Export.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"lib/Release/vsgQt.lib"
+			],
+			"targetId" : "vsgQt::@6d4b21210806863a0e24",
+			"targetIndex" : 7,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"include/vsgQt"
+			],
+			"type" : "directory"
+		},
+		{
+			"backtrace" : 6,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/vsgQt",
+			"exportName" : "vsgQtTargets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "vsgQt::@6d4b21210806863a0e24",
+					"index" : 7
+				}
+			],
+			"paths" : 
+			[
+				"src/vsgQt/CMakeFiles/Export/4010cb17e1a6b1572954eb2d6b140250/vsgQtTargets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 7,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/vsgQt",
+			"paths" : 
+			[
+				"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/src/vsgQt/vsgQtConfig.cmake",
+				"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/src/vsgQt/vsgQtConfigVersion.cmake"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "src/vsgQt",
+		"source" : "src/vsgQt"
+	}
+}

@@ -1,0 +1,12 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/cmake_install.cmake",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/src/vsgQt/cmake_install.cmake",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/cmake_install.cmake",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/cmake_install.cmake",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtmdi/cmake_install.cmake",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtwindows/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

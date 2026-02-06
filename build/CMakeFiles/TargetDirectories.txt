@@ -1,0 +1,17 @@
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/CMakeFiles/clobber.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/CMakeFiles/clobber-vsgQt.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/CMakeFiles/uninstall.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/CMakeFiles/uninstall-vsgQt.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/CMakeFiles/INSTALL.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/src/vsgQt/CMakeFiles/vsgQt.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/src/vsgQt/CMakeFiles/INSTALL.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/CMakeFiles/INSTALL.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/CMakeFiles/vsgqtviewer.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/CMakeFiles/INSTALL.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/CMakeFiles/ALL_BUILD.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtmdi/CMakeFiles/vsgqtmdi.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtmdi/CMakeFiles/INSTALL.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtwindows/CMakeFiles/vsgqtwindows.dir
+C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtwindows/CMakeFiles/INSTALL.dir

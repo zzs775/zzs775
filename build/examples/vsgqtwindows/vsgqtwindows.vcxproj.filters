@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtwindows\vsgqtwindows_autogen\mocs_compilation_Debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtwindows\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtwindows\vsgqtwindows_autogen\mocs_compilation_Release.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtwindows\vsgqtwindows_autogen\mocs_compilation_MinSizeRel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtwindows\vsgqtwindows_autogen\mocs_compilation_RelWithDebInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtwindows\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{A3C23014-FEC4-3E9E-920D-F5C5BBF56F98}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
