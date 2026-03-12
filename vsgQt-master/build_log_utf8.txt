@@ -1,0 +1,24 @@
+﻿适用于 .NET Framework MSBuild 版本 17.14.23+b0019275e
+
+  Automatic MOC and UIC for target vsgQt
+  vsgQt.vcxproj -> C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\build\lib\Release\vsgQt.lib
+  Automatic MOC and UIC for target vsgqtmdi
+  vsgqtmdi.vcxproj -> C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\build\bin\Release\vsgqtmdi.exe
+  Automatic MOC and UIC for target vsgqtviewer
+  main.cpp
+C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\main.cpp(995,88): error C2039: "as": 不是 "rocky::option<rocky::Distance>" 的成员 [C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\build\examples\vsgqtviewer\vsgqtviewer.vcxproj]
+      C:\Users\cfh12\Desktop\rocky_qt\rocky-main (1)\install\include\rocky\option.h(26,33):
+      参见“rocky::option<rocky::Distance>”的声明
+  
+C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\main.cpp(995,25): error C2660: “QmlBridge::updateCamera”: 函数不接受 4 个参数 [C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\build\examples\vsgqtviewer\vsgqtviewer.vcxproj]
+      C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\QmlBridge.h(68,10):
+      参见“QmlBridge::updateCamera”的声明
+      C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\main.cpp(995,25):
+      尝试匹配参数列表“(T, T, T, double)”时
+          with
+          [
+              T=glm::f64
+          ]
+  
+  Automatic MOC and UIC for target vsgqtwindows
+  vsgqtwindows.vcxproj -> C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\build\bin\Release\vsgqtwindows.exe

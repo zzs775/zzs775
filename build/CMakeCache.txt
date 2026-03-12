@@ -310,6 +310,9 @@ QT_PACKAGE_NAME:STRING=Qt6
 //The directory containing a CMake configuration file for Qt6Concurrent.
 Qt6Concurrent_DIR:PATH=C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Concurrent
 
+//The directory containing a CMake configuration file for Qt6Core5Compat.
+Qt6Core5Compat_DIR:PATH=C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Core5Compat
+
 //The directory containing a CMake configuration file for Qt6CoreTools.
 Qt6CoreTools_DIR:PATH=C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6CoreTools
 
@@ -357,6 +360,15 @@ Qt6QmlWorkerScript_DIR:PATH=C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6QmlWorkerScript
 
 //The directory containing a CMake configuration file for Qt6Qml.
 Qt6Qml_DIR:PATH=C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Qml
+
+//The directory containing a CMake configuration file for Qt6QuickControls2.
+Qt6QuickControls2_DIR:PATH=C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6QuickControls2
+
+//The directory containing a CMake configuration file for Qt6QuickEffects.
+Qt6QuickEffects_DIR:PATH=C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6QuickEffects
+
+//The directory containing a CMake configuration file for Qt6QuickTemplates2.
+Qt6QuickTemplates2_DIR:PATH=C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6QuickTemplates2
 
 //The directory containing a CMake configuration file for Qt6QuickTools.
 Qt6QuickTools_DIR:PATH=C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6QuickTools
@@ -684,6 +696,8 @@ QT_FEATURE_avx512vbmi2:INTERNAL=ON
 QT_FEATURE_avx512vl:INTERNAL=ON
 //Qt feature: backtrace (from target Qt6::Core)
 QT_FEATURE_backtrace:INTERNAL=OFF
+//Qt feature: big_codecs (from target Qt6::Core5Compat)
+QT_FEATURE_big_codecs:INTERNAL=ON
 //Qt feature: broken_threadlocal_dtors (from target Qt6::Core)
 QT_FEATURE_broken_threadlocal_dtors:INTERNAL=ON
 //Qt feature: brotli (from target Qt6::Network)
@@ -704,6 +718,8 @@ QT_FEATURE_clipboard:INTERNAL=ON
 QT_FEATURE_clock_gettime:INTERNAL=OFF
 //Qt feature: clock_monotonic (from target Qt6::Core)
 QT_FEATURE_clock_monotonic:INTERNAL=OFF
+//Qt feature: codecs (from target Qt6::Core5Compat)
+QT_FEATURE_codecs:INTERNAL=ON
 //Qt feature: colordialog (from target Qt6::Widgets)
 QT_FEATURE_colordialog:INTERNAL=ON
 //Qt feature: colornames (from target Qt6::Gui)
@@ -932,6 +948,8 @@ QT_FEATURE_hijricalendar:INTERNAL=ON
 QT_FEATURE_http:INTERNAL=ON
 //Qt feature: ico (from target Qt6::Gui)
 QT_FEATURE_ico:INTERNAL=ON
+//Qt feature: iconv (from target Qt6::Core5Compat)
+QT_FEATURE_iconv:INTERNAL=OFF
 //Qt feature: icu (from target Qt6::Core)
 QT_FEATURE_icu:INTERNAL=OFF
 //Qt feature: identityproxymodel (from target Qt6::Core)
@@ -1247,6 +1265,32 @@ QT_FEATURE_quick_tableview:INTERNAL=ON
 QT_FEATURE_quick_treeview:INTERNAL=ON
 //Qt feature: quick_viewtransitions (from target Qt6::Quick)
 QT_FEATURE_quick_viewtransitions:INTERNAL=ON
+//Qt feature: quickcontrols2_basic (from target Qt6::QuickControls2)
+QT_FEATURE_quickcontrols2_basic:INTERNAL=ON
+//Qt feature: quickcontrols2_fluentwinui3 (from target Qt6::QuickControls2)
+QT_FEATURE_quickcontrols2_fluentwinui3:INTERNAL=ON
+//Qt feature: quickcontrols2_fusion (from target Qt6::QuickControls2)
+QT_FEATURE_quickcontrols2_fusion:INTERNAL=ON
+//Qt feature: quickcontrols2_imagine (from target Qt6::QuickControls2)
+QT_FEATURE_quickcontrols2_imagine:INTERNAL=ON
+//Qt feature: quickcontrols2_ios (from target Qt6::QuickControls2)
+QT_FEATURE_quickcontrols2_ios:INTERNAL=OFF
+//Qt feature: quickcontrols2_macos (from target Qt6::QuickControls2)
+QT_FEATURE_quickcontrols2_macos:INTERNAL=OFF
+//Qt feature: quickcontrols2_material (from target Qt6::QuickControls2)
+QT_FEATURE_quickcontrols2_material:INTERNAL=ON
+//Qt feature: quickcontrols2_universal (from target Qt6::QuickControls2)
+QT_FEATURE_quickcontrols2_universal:INTERNAL=ON
+//Qt feature: quickcontrols2_windows (from target Qt6::QuickControls2)
+QT_FEATURE_quickcontrols2_windows:INTERNAL=ON
+//Qt feature: quicktemplates2_calendar (from target Qt6::QuickTemplates2)
+QT_FEATURE_quicktemplates2_calendar:INTERNAL=ON
+//Qt feature: quicktemplates2_container (from target Qt6::QuickTemplates2)
+QT_FEATURE_quicktemplates2_container:INTERNAL=ON
+//Qt feature: quicktemplates2_hover (from target Qt6::QuickTemplates2)
+QT_FEATURE_quicktemplates2_hover:INTERNAL=ON
+//Qt feature: quicktemplates2_multitouch (from target Qt6::QuickTemplates2)
+QT_FEATURE_quicktemplates2_multitouch:INTERNAL=ON
 //Qt feature: radiobutton (from target Qt6::Widgets)
 QT_FEATURE_radiobutton:INTERNAL=ON
 //Qt feature: raster_64bit (from target Qt6::Gui)
@@ -1429,6 +1473,8 @@ QT_FEATURE_test_gui:INTERNAL=ON
 QT_FEATURE_testlib:INTERNAL=ON
 //Qt feature: textbrowser (from target Qt6::Widgets)
 QT_FEATURE_textbrowser:INTERNAL=ON
+//Qt feature: textcodec (from target Qt6::Core5Compat)
+QT_FEATURE_textcodec:INTERNAL=ON
 //Qt feature: textdate (from target Qt6::Core)
 QT_FEATURE_textdate:INTERNAL=ON
 //Qt feature: textedit (from target Qt6::Widgets)

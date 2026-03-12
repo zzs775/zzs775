@@ -20,7 +20,7 @@ set(VSGQT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root binary d
 
 set(QT_PACKAGE_NAME Qt6 CACHE STRING "Set Qt package name, i.e. Qt5 or Qt6.")
 
-# 设置 Rocky 和 VSG 的路径
+
 list(APPEND CMAKE_PREFIX_PATH "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install")
 list(APPEND CMAKE_PREFIX_PATH "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share")
 
@@ -32,8 +32,7 @@ vsg_setup_dir_vars()
 vsg_setup_build_vars()
 
 # if Qt5 then we need 5.10 or later
-find_package(${QT_PACKAGE_NAME} COMPONENTS Widgets REQUIRED)
-
+find_package(Qt6 COMPONENTS Core Gui Widgets Quick REQUIRED)
 vsg_add_target_clang_format(
     FILES
         include/*/*.h
@@ -70,11 +69,9 @@ set(CMAKE_AUTOUIC ON)
 if(WIN32)
     add_definitions(-DNOMINMAX)
     set(MODE WIN32)
-    # 添加 MSVC 特定选项，解决 Qt 6.10.1 的编译问题
     if(MSVC)
         add_compile_options(/Zc:__cplusplus)
         add_compile_options(/permissive-)
-        # 禁用一些可能导致问题的警告
         add_compile_options(/wd4251 /wd4275 /wd4996)
     endif()
 endif()

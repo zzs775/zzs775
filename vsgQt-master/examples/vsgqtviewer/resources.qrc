@@ -1,9 +1,13 @@
 <RCC>
     <qresource prefix="/images">
-        <file>标题栏背景_1 (34).png</file>
-        <file>顶部UI_模型管理.png</file>
+        <file>top_banner_bg.png</file>
+        <file>btn_border.png</file>
     </qresource>
     <qresource prefix="/">
         <file>TechOverlay.qml</file>
+        <file>SciFiButton.qml</file>
+        <file>ModelListPanel.qml</file>
+        <file>ManagePanel.qml</file>
+        <file>TimelineBar.qml</file>
     </qresource>
 </RCC>

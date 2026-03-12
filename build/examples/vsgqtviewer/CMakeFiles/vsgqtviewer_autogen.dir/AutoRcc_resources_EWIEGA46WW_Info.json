@@ -14,23 +14,43 @@
 	"INPUTS" : [],
 	"INPUTS_Debug" : 
 	[
-		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/\u6807\u9898\u680f\u80cc\u666f_1 (34).png",
-		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/\u9876\u90e8UI_\u6a21\u578b\u7ba1\u7406.png"
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ManagePanel.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/TechOverlay.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/SciFiButton.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/TimelineBar.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ModelListPanel.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/top_banner_bg.png",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/btn_border.png"
 	],
 	"INPUTS_MinSizeRel" : 
 	[
-		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/\u6807\u9898\u680f\u80cc\u666f_1 (34).png",
-		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/\u9876\u90e8UI_\u6a21\u578b\u7ba1\u7406.png"
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ManagePanel.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/TechOverlay.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/SciFiButton.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/TimelineBar.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ModelListPanel.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/top_banner_bg.png",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/btn_border.png"
 	],
 	"INPUTS_RelWithDebInfo" : 
 	[
-		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/\u6807\u9898\u680f\u80cc\u666f_1 (34).png",
-		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/\u9876\u90e8UI_\u6a21\u578b\u7ba1\u7406.png"
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ManagePanel.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/TechOverlay.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/SciFiButton.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/TimelineBar.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ModelListPanel.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/top_banner_bg.png",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/btn_border.png"
 	],
 	"INPUTS_Release" : 
 	[
-		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/\u6807\u9898\u680f\u80cc\u666f_1 (34).png",
-		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/\u9876\u90e8UI_\u6a21\u578b\u7ba1\u7406.png"
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ManagePanel.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/TechOverlay.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/SciFiButton.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/TimelineBar.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ModelListPanel.qml",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/top_banner_bg.png",
+		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/btn_border.png"
 	],
 	"LOCK_FILE" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/CMakeFiles/vsgqtviewer_autogen.dir/AutoRcc_resources_EWIEGA46WW_Lock.lock",
 	"MULTI_CONFIG" : true,

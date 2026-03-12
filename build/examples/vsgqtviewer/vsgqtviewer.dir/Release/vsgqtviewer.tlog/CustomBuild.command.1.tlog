@@ -1,3 +1,17 @@
+^C:\USERS\CFH12\DESKTOP\ROCKY_QT\VSGQT-(RUBULID)\BUILD\CMAKEFILES\61052B465F2B55656A9D8EF5EDFE3D60\QRC_RESOURCES.CPP.RULE
+setlocal
+cd C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtviewer
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autorcc C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/CMakeFiles/vsgqtviewer_autogen.dir/AutoRcc_resources_EWIEGA46WW_Info.json Release
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
 ^C:\USERS\CFH12\DESKTOP\ROCKY_QT\VSGQT-(RUBULID)\VSGQT-MASTER\EXAMPLES\VSGQTVIEWER\CMAKELISTS.TXT
 setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master -BC:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build --check-stamp-file C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/CMakeFiles/generate.stamp
