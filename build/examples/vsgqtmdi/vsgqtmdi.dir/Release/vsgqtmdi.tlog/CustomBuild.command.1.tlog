@@ -1,0 +1,10 @@
+^C:\USERS\CFH12\DESKTOP\ROCKY_QT\VSGQT-(RUBULID)\VSGQT-MASTER\EXAMPLES\VSGQTMDI\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master -BC:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build --check-stamp-file C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtmdi/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

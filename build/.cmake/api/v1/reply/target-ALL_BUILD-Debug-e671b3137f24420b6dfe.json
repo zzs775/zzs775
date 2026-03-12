@@ -1,0 +1,65 @@
+{
+	"backtrace" : 0,
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"dependencies" : 
+	[
+		{
+			"id" : "vsgQt::@6d4b21210806863a0e24"
+		},
+		{
+			"id" : "vsgqtmdi::@64abb28f357335c21346"
+		},
+		{
+			"id" : "vsgqtwindows::@2bb2f9fbafbeeea1a5e3"
+		},
+		{
+			"id" : "vsgqtviewer::@62eebd0ffc708f9bd172"
+		},
+		{
+			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
+		}
+	],
+	"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+	"isGeneratorProvided" : true,
+	"name" : "ALL_BUILD",
+	"orderDependencies" : 
+	[
+		{
+			"id" : "vsgQt::@6d4b21210806863a0e24"
+		},
+		{
+			"id" : "vsgqtmdi::@64abb28f357335c21346"
+		},
+		{
+			"id" : "vsgqtwindows::@2bb2f9fbafbeeea1a5e3"
+		},
+		{
+			"id" : "vsgqtviewer::@62eebd0ffc708f9bd172"
+		}
+	],
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sources" : [],
+	"type" : "UTILITY"
+}

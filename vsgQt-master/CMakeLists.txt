@@ -70,6 +70,13 @@ set(CMAKE_AUTOUIC ON)
 if(WIN32)
     add_definitions(-DNOMINMAX)
     set(MODE WIN32)
+    # 添加 MSVC 特定选项，解决 Qt 6.10.1 的编译问题
+    if(MSVC)
+        add_compile_options(/Zc:__cplusplus)
+        add_compile_options(/permissive-)
+        # 禁用一些可能导致问题的警告
+        add_compile_options(/wd4251 /wd4275 /wd4996)
+    endif()
 endif()
 
 add_subdirectory(src/vsgQt)

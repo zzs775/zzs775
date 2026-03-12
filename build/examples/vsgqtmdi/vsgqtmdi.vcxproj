@@ -87,12 +87,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtmdi\vsgqtmdi_autogen\include_Debug;C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\include;C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Qt/6.10.1/mingw_64/include/QtWidgets" /external:I "C:/Qt/6.10.1/mingw_64/include" /external:I "C:/Qt/6.10.1/mingw_64/include/QtCore" /external:I "C:/Qt/6.10.1/mingw_64/mkspecs/win32-g++" /external:I "C:/Qt/6.10.1/mingw_64/include/QtGui" /external:I "C:/VulkanSDK/1.4.328.1/include" /external:I "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/include"</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Qt/6.10.1/mingw_64/include/QtWidgets" /external:I "C:/Qt/6.10.1/mingw_64/include" /external:I "C:/Qt/6.10.1/mingw_64/include/QtCore" /external:I "C:/Qt/6.10.1/mingw_64/mkspecs/win32-g++" /external:I "C:/Qt/6.10.1/mingw_64/include/QtGui" /external:I "C:/VulkanSDK/1.4.328.1/include" /external:I "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/include" /Zc:__cplusplus</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck></BufferSecurityCheck>
       <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4251;4275;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <FloatingPointModel></FloatingPointModel>
@@ -163,11 +165,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtmdi\vsgqtmdi_autogen\include_Release;C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\include;C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Qt/6.10.1/mingw_64/include/QtWidgets" /external:I "C:/Qt/6.10.1/mingw_64/include" /external:I "C:/Qt/6.10.1/mingw_64/include/QtCore" /external:I "C:/Qt/6.10.1/mingw_64/mkspecs/win32-g++" /external:I "C:/Qt/6.10.1/mingw_64/include/QtGui" /external:I "C:/VulkanSDK/1.4.328.1/include" /external:I "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/include"</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Qt/6.10.1/mingw_64/include/QtWidgets" /external:I "C:/Qt/6.10.1/mingw_64/include" /external:I "C:/Qt/6.10.1/mingw_64/include/QtCore" /external:I "C:/Qt/6.10.1/mingw_64/mkspecs/win32-g++" /external:I "C:/Qt/6.10.1/mingw_64/include/QtGui" /external:I "C:/VulkanSDK/1.4.328.1/include" /external:I "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/include" /Zc:__cplusplus</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck></BufferSecurityCheck>
       <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <DisableSpecificWarnings>4251;4275;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <FloatingPointModel></FloatingPointModel>
@@ -240,11 +244,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtmdi\vsgqtmdi_autogen\include_MinSizeRel;C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\include;C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Qt/6.10.1/mingw_64/include/QtWidgets" /external:I "C:/Qt/6.10.1/mingw_64/include" /external:I "C:/Qt/6.10.1/mingw_64/include/QtCore" /external:I "C:/Qt/6.10.1/mingw_64/mkspecs/win32-g++" /external:I "C:/Qt/6.10.1/mingw_64/include/QtGui" /external:I "C:/VulkanSDK/1.4.328.1/include" /external:I "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/include"</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Qt/6.10.1/mingw_64/include/QtWidgets" /external:I "C:/Qt/6.10.1/mingw_64/include" /external:I "C:/Qt/6.10.1/mingw_64/include/QtCore" /external:I "C:/Qt/6.10.1/mingw_64/mkspecs/win32-g++" /external:I "C:/Qt/6.10.1/mingw_64/include/QtGui" /external:I "C:/VulkanSDK/1.4.328.1/include" /external:I "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/include" /Zc:__cplusplus</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck></BufferSecurityCheck>
       <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <DisableSpecificWarnings>4251;4275;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <FloatingPointModel></FloatingPointModel>
@@ -317,12 +323,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtmdi\vsgqtmdi_autogen\include_RelWithDebInfo;C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\include;C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Qt/6.10.1/mingw_64/include/QtWidgets" /external:I "C:/Qt/6.10.1/mingw_64/include" /external:I "C:/Qt/6.10.1/mingw_64/include/QtCore" /external:I "C:/Qt/6.10.1/mingw_64/mkspecs/win32-g++" /external:I "C:/Qt/6.10.1/mingw_64/include/QtGui" /external:I "C:/VulkanSDK/1.4.328.1/include" /external:I "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/include"</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Qt/6.10.1/mingw_64/include/QtWidgets" /external:I "C:/Qt/6.10.1/mingw_64/include" /external:I "C:/Qt/6.10.1/mingw_64/include/QtCore" /external:I "C:/Qt/6.10.1/mingw_64/mkspecs/win32-g++" /external:I "C:/Qt/6.10.1/mingw_64/include/QtGui" /external:I "C:/VulkanSDK/1.4.328.1/include" /external:I "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/include" /Zc:__cplusplus</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck></BufferSecurityCheck>
       <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4251;4275;4996</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
       <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
       <FloatingPointModel></FloatingPointModel>

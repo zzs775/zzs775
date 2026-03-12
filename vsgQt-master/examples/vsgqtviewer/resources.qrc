@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>标题栏背景_1 (34).png</file>
+        <file>顶部UI_模型管理.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>TechOverlay.qml</file>
+    </qresource>
+</RCC>
