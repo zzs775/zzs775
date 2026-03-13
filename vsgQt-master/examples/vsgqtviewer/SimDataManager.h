@@ -79,7 +79,7 @@ public:
 
     Q_INVOKABLE void addEntity(ModelType type, double lat, double lon, double alt);
     Q_INVOKABLE void addEntityWithName(const QString& name, ModelType type, double lat, double lon, double alt);
-    Q_INVOKABLE bool removeEntity(const QString& id);
+    Q_INVOKABLE bool removeEntity(const QString& id, bool blacklist = true);
     Q_INVOKABLE bool updateEntityPosition(const QString& id, double lat, double lon, double alt, double yaw = 0.0, double pitch = 0.0, double roll = 0.0);
     Q_INVOKABLE QVariantMap getEntity(const QString& id) const;
     Q_INVOKABLE int count() const;
@@ -145,6 +145,7 @@ private:
     // ACMI 实体元数据缓存
     std::unordered_map<std::string, std::string> m_entityNames;
     std::unordered_map<std::string, std::string> m_entityColors;
+    std::unordered_map<std::string, double> m_entityLastUpdateTime;
 
     // ===== ACMI 缓冲回放数据 =====
     std::vector<AcmiFrame> m_acmiFrames;       // 时间有序帧缓冲区（生产者写、消费者读）

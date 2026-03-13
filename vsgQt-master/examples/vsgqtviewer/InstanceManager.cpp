@@ -54,6 +54,12 @@ entt::entity InstanceManager::CreateEntity(const std::string& id, const std::str
         _dynamicGroup->addChild(rt);
     }
 
+    // 追加：为 TrackHistorySystem 添加 rocky::Transform 组件
+    // rocky::Transform 与自定义 TransformComponent 并存，互不干扰
+    // rocky::Transform 只负责存储地理位置，不管理 VSG 节点
+    auto& rockyTransform = _registry.emplace<rocky::Transform>(entity);
+    rockyTransform.position = rocky::GeoPoint(); // 初始化为空位置，首帧更新前不会被 TrackHistorySystem 采样
+
     return entity;
 }
 

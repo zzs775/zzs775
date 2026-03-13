@@ -38,6 +38,8 @@ set(SOURCES
     ManagePanel.qml
     ModelListPanel.qml
     TimelineBar.qml
+    WinBtn.qml
+    WindowControls.qml
     resources.qrc
 )
 
@@ -66,6 +68,8 @@ add_custom_command(TARGET vsgqtviewer POST_BUILD
         "${CMAKE_CURRENT_SOURCE_DIR}/ManagePanel.qml"
         "${CMAKE_CURRENT_SOURCE_DIR}/ModelListPanel.qml"
         "${CMAKE_CURRENT_SOURCE_DIR}/TimelineBar.qml"
+        "${CMAKE_CURRENT_SOURCE_DIR}/WinBtn.qml"
+        "${CMAKE_CURRENT_SOURCE_DIR}/WindowControls.qml"
         "${CMAKE_BINARY_DIR}/bin"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_CURRENT_SOURCE_DIR}/top_banner_bg.png"

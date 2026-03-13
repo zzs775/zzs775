@@ -13,7 +13,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDebug>
-#include <map>
+#include <unordered_map>
 #include <string>
 
 class FixMaterialVisitor : public vsg::Visitor {
@@ -59,6 +59,60 @@ inline void forceBrightMaterial(vsg::Node* node)
     node->accept(visitor);
 }
 
+struct SetTeamColorVisitor : public vsg::Visitor
+{
+    vsg::vec4 color;
+    SetTeamColorVisitor(const vsg::vec4& c) : color(c) {}
+
+    void apply(vsg::Object& object) override { object.traverse(*this); }
+
+    void apply(vsg::DescriptorBuffer& db) override
+    {
+        for (auto& bufferInfo : db.bufferInfoList)
+        {
+            if (!bufferInfo || !bufferInfo->data) continue;
+            
+            if (auto* phong = bufferInfo->data->cast<vsg::PhongMaterialValue>())
+            {
+                qDebug() << "[Color] Found Phong via DescriptorBuffer, replacing";
+                auto newMat = vsg::PhongMaterialValue::create();
+                newMat->value() = phong->value();
+                newMat->value().diffuse = color;
+                newMat->value().emissive = vsg::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                bufferInfo->data = newMat;
+            }
+            else if (auto* pbr = bufferInfo->data->cast<vsg::PbrMaterialValue>())
+            {
+                qDebug() << "[Color] Found PBR via DescriptorBuffer, replacing";
+                auto newMat = vsg::PbrMaterialValue::create();
+                newMat->value() = pbr->value();
+                newMat->value().baseColorFactor = color;
+                newMat->value().emissiveFactor  = vsg::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                newMat->value().metallicFactor  = 0.0f;
+                newMat->value().roughnessFactor = 0.8f;
+                bufferInfo->data = newMat;
+            }
+            else
+            {
+                qDebug() << "[Color] DescriptorBuffer data type:" 
+                         << (bufferInfo->data ? bufferInfo->data->className() : "null");
+            }
+        }
+        db.traverse(*this);
+    }
+};
+
+inline void applyTeamColor(vsg::Node* node, const std::string& colorName)
+{
+    vsg::vec4 color;
+    if      (colorName == "RedTeam")  color = vsg::vec4(0.8f, 0.05f, 0.05f, 1.0f);  // 深红
+    else if (colorName == "BlueTeam") color = vsg::vec4(0.05f, 0.15f, 0.8f, 1.0f);  // 深蓝
+    else return; // 未知阵营不染色
+
+    SetTeamColorVisitor visitor(color);
+    node->accept(visitor);
+}
+
 class ModelFactory {
 public:
     static ModelFactory* instance();
@@ -72,8 +126,12 @@ public:
     vsg::ref_ptr<vsg::Node> createVisualEntity(
         const std::string& filename, 
         const QString& label, 
-        double targetSize = 100.0
+        double targetSize = 100.0,
+        const std::string& teamColor = ""
     );
+
+    vsg::ref_ptr<vsg::Node> getColoredModel(const std::string& filename, const std::string& teamColor);
+
     
     bool isInitialized() const { return _initialized; }
     bool hasFont() const { return _font.valid(); }
@@ -87,6 +145,7 @@ private:
     vsg::ref_ptr<vsg::Font> _font;
     vsg::ref_ptr<vsg::Options> _options;
     std::map<std::string, vsg::ref_ptr<vsg::Node>> _modelCache;
+    std::unordered_map<std::string, vsg::ref_ptr<vsg::Node>> _coloredModelCache;
     bool _initialized = false;
     bool _vsgXchangeLoaded = false;
     

@@ -43,6 +43,7 @@ class QmlBridge : public QObject
     Q_PROPERTY(int acmiPacketCount READ acmiPacketCount NOTIFY acmiStatsChanged)
     Q_PROPERTY(bool acmiBufferMode READ acmiBufferMode NOTIFY acmiStatsChanged)
     Q_PROPERTY(double maxBufferedProgress READ maxBufferedProgress NOTIFY maxBufferedProgressChanged)
+    Q_PROPERTY(bool isMaximized READ isMaximized NOTIFY windowStateChanged)
 
 public:
     explicit QmlBridge(QObject* parent = nullptr) : QObject(parent) {}
@@ -55,6 +56,10 @@ public:
     Q_INVOKABLE void removeEntity(const QString& id);
     Q_INVOKABLE void cancelPlacement();
     Q_INVOKABLE void untether();
+
+    Q_INVOKABLE void minimizeWindow();
+    Q_INVOKABLE void maximizeWindow();
+    Q_INVOKABLE void closeWindow();
 
     // READ for Phase 1
     double longitude() const { return m_longitude; }
@@ -79,6 +84,7 @@ public:
     bool simAnimating() const;
     double simMultiplier() const;
     double maxBufferedProgress() const;
+    bool isMaximized() const { return m_window && (m_window->windowState() & Qt::WindowMaximized); }
 
     void updateCamera(double lon, double lat, double alt, double fov, double pitch, double heading, double viewH, const QString& scale);
     void updatePerf(double ms, int fps);
@@ -109,6 +115,7 @@ signals:
     void simMultiplierChanged();
     void acmiStatsChanged();
     void maxBufferedProgressChanged();
+    void windowStateChanged();
 
 private:
     QWindow* m_window = nullptr;

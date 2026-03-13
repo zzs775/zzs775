@@ -6,6 +6,7 @@
 #include <rocky/vsg/VSGContext.h>
 #include <rocky/vsg/ecs/LineSystem.h>
 #include <rocky/vsg/ecs/System.h>
+#include <rocky/ecs/Visibility.h>
 
 using namespace ROCKY_NAMESPACE;
 
@@ -132,18 +133,19 @@ public:
 
     void updateVisibility(entt::registry& registry, entt::entity host_entity, TrackHistory::Chunk& chunk)
     {
-        auto& track_visibility = registry.get<Visibility>(chunk.attach_point);
-        if (tracks_visible && registry.all_of<ActiveState>(host_entity))
+        // 确保 chunk 上有 Visibility 组件
+        if (!registry.all_of<Visibility>(chunk.attach_point))
+            registry.emplace<Visibility>(chunk.attach_point);
+
+        bool shouldBeVisible = tracks_visible && registry.all_of<ActiveState>(host_entity);
+        if (shouldBeVisible && registry.all_of<Visibility>(host_entity))
         {
-            if (registry.all_of<Visibility>(host_entity))
-                track_visibility.visible = registry.get<Visibility>(host_entity).visible;
-            else
-                track_visibility.visible = true;
+            // 从实体的 Visibility 继承可见性（取 view 0）
+            shouldBeVisible = registry.get<Visibility>(host_entity).visible[0];
         }
-        else
-        {
-            track_visibility.visible = false;
-        }
+
+        // 使用 rocky 的 setVisible 辅助函数（内部用 fill()，准确设置所有视图）
+        setVisible(registry, chunk.attach_point, shouldBeVisible);
     }
 
     void updateVisibility(entt::registry& registry)

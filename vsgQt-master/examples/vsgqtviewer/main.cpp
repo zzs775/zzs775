@@ -33,7 +33,6 @@
 #include <vsgQt/Window.h>
 #include <vsgXchange/all.h>
 
-#include "InstanceManager.h"
 #include "ModelFactory.h"
 #include "ModelListModel.h"
 #include "QmlBridge.h"
@@ -42,9 +41,8 @@
 
 #include <rocky/ecs/Transform.h>
 #include <rocky/vsg/ecs/ECSNode.h>
-// 航迹拖尾系统暂时移除，直到 ABI 兼容性问题解决
-// #include "TrackHistorySystem.h"
-// #include <rocky/vsg/ecs/LineSystem.h>
+// 航迹拖尾：纯 VSG 实现，不依赖 Rocky ECS
+#include "TrackNode.h"
 
 extern AppState g_appState;
 AppState g_appState;
@@ -70,29 +68,32 @@ vsg::dvec3 worldToLatLonAlt(const vsg::dvec3& p)
 class SimulationUpdateHandler : public vsg::Inherit<vsg::Visitor, SimulationUpdateHandler>
 {
 public:
-    SimulationUpdateHandler(SimDataManager* dm, SimClock* clk = nullptr, vsg::ref_ptr<vsg::Group> entitiesRoot = nullptr) : dataManager(dm), simClock(clk), _entitiesRoot(entitiesRoot) {}
+    SimulationUpdateHandler(SimDataManager* dm, SimClock* clk = nullptr, vsg::ref_ptr<vsg::Group> entitiesRoot = nullptr, rocky::VSGContext context = {}) : dataManager(dm), simClock(clk), _entitiesRoot(entitiesRoot), rockyContext(context) {}
 
     // 核心函数：每一帧渲染前执行，处理所有逻辑更新
     void apply(vsg::FrameEvent& frame) override
     {
+        _frameCount++;
+
         if (!dataManager || !_entitiesRoot) return;
 
         // 实体追踪状态（用于平滑与显隐控制）
         struct EntityState
         {
             // 平滑坐标（渲染侧 EMA，用于消除时钟抖动和帧间卡顿）
-            double smoothLon   = 0.0;
-            double smoothLat   = 0.0;
-            double smoothAlt   = 0.0;
+            double smoothLon = 0.0;
+            double smoothLat = 0.0;
+            double smoothAlt = 0.0;
             // 平滑姿态（±180° 最短路径 EMA）
-            double smoothYaw   = 0.0;
+            double smoothYaw = 0.0;
             double smoothPitch = 0.0;
-            double smoothRoll  = 0.0;
+            double smoothRoll = 0.0;
             bool hasSmoothPos = false; // 首帧直接赋值，避免从 (0,0,0) 追过来
 
             // 显示状态控制
             bool isVisible = true;
             vsg::ref_ptr<vsg::MatrixTransform> transformNode;
+            vsg::ref_ptr<TrackNode> trackNode; // 航迹线节点
 
             double lastDataReceivedTime = -1.0;
             bool isFadingOut = false;
@@ -148,7 +149,7 @@ public:
                 state.lastDataReceivedTime = currentTime;
                 state.isFadingOut = false;
             }
-            else if (currentTime - state.lastDataReceivedTime > 2.0 && !state.isFadingOut)
+            else if (std::abs(currentTime - state.lastDataReceivedTime) > 2.0 && !state.isFadingOut)
             {
                 // 超时2秒没有数据，标记完全淡出并移除
                 state.isFadingOut = true;
@@ -162,7 +163,7 @@ public:
                 if (!inSnapshot)
                 {
                     ch.erase(std::remove(ch.begin(), ch.end(), vsg::ref_ptr<vsg::Node>(state.transformNode)), ch.end());
-                    dataManager->removeEntity(QString::fromStdString(id));
+                    dataManager->removeEntity(QString::fromStdString(id), false); // 自动超时不拉黑
                     _needsCompile = true;
                 }
                 else
@@ -209,7 +210,12 @@ public:
                     modelScale = 5000.0;
                 }
 
-                auto modelNode = ModelFactory::instance()->createVisualEntity(modelFile, QString::fromStdString(name), modelScale);
+                auto modelNode = ModelFactory::instance()->createVisualEntity(
+                    modelFile,
+                    QString::fromStdString(name),
+                    modelScale,
+                    packet.color);
+
                 if (!modelNode)
                 {
                     vsg::GeometryInfo info;
@@ -234,14 +240,14 @@ public:
             // │  k = 20 → alpha ≈ 28% / 帧，响应快，轻微弹性感     │
             // │  ACMI 帧间隔大时建议 k=10~12；实时 UDP 建议 k=15~20│
             // └─────────────────────────────────────────────────────┘
-            constexpr double smoothingK   = 12.0;         // ← 调这一个数字即可
-            constexpr double nominalDt    = 1.0 / 60.0;   // 16ms 渲染周期
-            const double     renderAlpha  = 1.0 - std::exp(-smoothingK * nominalDt);
+            constexpr double smoothingK = 12.0;      // ← 调这一个数字即可
+            constexpr double nominalDt = 1.0 / 60.0; // 16ms 渲染周期
+            const double renderAlpha = 1.0 - std::exp(-smoothingK * nominalDt);
 
             // 角度插值辅助：走 ±180° 最短路径，防止跨零点大幅跳转
             auto smoothAngle = [](double cur, double target, double a) -> double {
                 double diff = target - cur;
-                while (diff >  180.0) diff -= 360.0;
+                while (diff > 180.0) diff -= 360.0;
                 while (diff < -180.0) diff += 360.0;
                 return cur + a * diff;
             };
@@ -249,12 +255,12 @@ public:
             if (!state.hasSmoothPos)
             {
                 // 首帧直接赋值，避免从 (0,0,0) 慢慢追过来
-                state.smoothLon   = packet.lon;
-                state.smoothLat   = packet.lat;
-                state.smoothAlt   = packet.alt;
-                state.smoothYaw   = packet.yaw;
+                state.smoothLon = packet.lon;
+                state.smoothLat = packet.lat;
+                state.smoothAlt = packet.alt;
+                state.smoothYaw = packet.yaw;
                 state.smoothPitch = packet.pitch;
-                state.smoothRoll  = packet.roll;
+                state.smoothRoll = packet.roll;
                 state.hasSmoothPos = true;
             }
             else
@@ -264,9 +270,9 @@ public:
                 state.smoothLat += renderAlpha * (packet.lat - state.smoothLat);
                 state.smoothAlt += renderAlpha * (packet.alt - state.smoothAlt);
                 // 姿态平滑（角度走最短路径）
-                state.smoothYaw   = smoothAngle(state.smoothYaw,   packet.yaw,   renderAlpha);
+                state.smoothYaw = smoothAngle(state.smoothYaw, packet.yaw, renderAlpha);
                 state.smoothPitch = smoothAngle(state.smoothPitch, packet.pitch, renderAlpha);
-                state.smoothRoll  = smoothAngle(state.smoothRoll,  packet.roll,  renderAlpha);
+                state.smoothRoll = smoothAngle(state.smoothRoll, packet.roll, renderAlpha);
             }
 
             // 【提取计算核心 ECEF】
@@ -277,18 +283,39 @@ public:
 
             vsg::dmat4 localToWorldMatrix = rocky::to_vsg(worldSRS.ellipsoid().topocentricToGeocentricMatrix(ecefPos));
 
-            // ACMI姿态旋转矩阵 ── 使用平滑后的姿态角，消除帧间抖动
-            vsg::dmat4 rotZ = vsg::rotate(vsg::radians(-state.smoothYaw),   0.0, 0.0, 1.0);
-            vsg::dmat4 rotX = vsg::rotate(vsg::radians(state.smoothPitch),  1.0, 0.0, 0.0);
-            vsg::dmat4 rotY = vsg::rotate(vsg::radians(state.smoothRoll),   0.0, 1.0, 0.0);
+            // ACMI 姿态旋转矩阵（平滑后，消除帧间抖动）
+            vsg::dmat4 rotZ = vsg::rotate(vsg::radians(-state.smoothYaw), 0.0, 0.0, 1.0);
+            vsg::dmat4 rotX = vsg::rotate(vsg::radians(state.smoothPitch), 1.0, 0.0, 0.0);
+            vsg::dmat4 rotY = vsg::rotate(vsg::radians(state.smoothRoll), 0.0, 1.0, 0.0);
             vsg::dmat4 fullMatrix = localToWorldMatrix * rotZ * rotX * rotY;
 
             // 3. [矩阵更新与姿态修正]
             if (state.transformNode)
             {
-                // 基础修正：和手动放置（EditorEventHandler）一模一样的 Y-up转 Z-up (或基础旋转)
                 vsg::dmat4 baseRot = vsg::rotate(vsg::radians(90.0), 0.0, 0.0, 1.0);
                 state.transformNode->matrix = fullMatrix * baseRot;
+
+                // ★ 航迹线：动态编译并追加位置点
+                if (!state.trackNode)
+                {
+                    state.trackNode = TrackNode::create(rockyContext, 3600);
+                    _entitiesRoot->addChild(state.trackNode);
+                    _needsCompile = true; // 只用全局 compile，不用 rockyContext->compile
+                }
+                vsg::dvec3 ecefVsg(ecefPos.x, ecefPos.y, ecefPos.z);
+
+                // 检测时间跳变（拖动进度条、回放跳转）
+                if (state.trackNode)
+                {
+                    double timeDiff = std::abs(currentTime - state.lastDataReceivedTime);
+                    if (state.hasSmoothPos && timeDiff > 1.0) // 跳变超过1秒就清轨迹
+                    {
+                        state.trackNode->clear();
+                    }
+                }
+
+                state.trackNode->addPoint(ecefVsg, currentTime);
+                state.trackNode->update();
             }
 
             // 4. [UI数据同步]
@@ -309,8 +336,9 @@ public:
     }
 
     SimDataManager* dataManager = nullptr;
-    SimClock* simClock = nullptr; // ACMI 缓冲回放时间控制
+    SimClock* simClock = nullptr;
     vsg::ref_ptr<vsg::Group> _entitiesRoot = nullptr;
+    rocky::VSGContext rockyContext;
 
     bool needsCompile() const
     {
@@ -323,6 +351,7 @@ public:
 
 private:
     bool _needsCompile = false;
+    int _frameCount = 0;
     std::string inferModelFile(const std::string& name)
     {
         std::string n = name;
@@ -920,6 +949,7 @@ int main(int argc, char* argv[])
     traits->debugLayer = false;
 
     auto vsgWindow = new vsgQt::Window(viewer, traits);
+    vsgWindow->setFlags(vsgWindow->flags() | Qt::FramelessWindowHint);
     vsgWindow->initializeWindow();
 
     // [修复 Bug1] traits 与 setGeometry 尺寸统一，避免初始 aspect 被提前算错
@@ -956,14 +986,12 @@ int main(int argc, char* argv[])
     SimDataManager* dataManager = new SimDataManager(&app);
     dataManager->startUdpReceiver(19999); // 启动二进制 UDP 接收器
 
-    // ★ 初始化 ECS 全局实体管理器 (Step 3)
-    // rocky::Registry appRegistry = rocky::Registry::create();
-    // _G::entityManager = std::make_shared<InstanceManager>(entities, mapNode, appRegistry);
-    // qDebug() << "[ECS] _G::entityManager 已初始化";
+    // ★ 初始化 ECS 全局实体管理器 (Step 3) - Old code removed
 
     // ★ 创建帧级更新器 (Step 5)
-    auto simUpdateHandler = SimulationUpdateHandler::create(dataManager, nullptr, entities);
-    // qDebug() << "[ECS] SimulationUpdateHandler 创建完成";
+    auto simUpdateHandler = SimulationUpdateHandler::create(dataManager, nullptr, entities, rockyContext);
+
+    // ECS 初始化已移除（改用纯 VSG TrackNode，不需要 registry）
 
     ModelListModel* modelListModel = new ModelListModel(&app);
     QString modelDir = "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/3DModel";
@@ -1004,7 +1032,7 @@ int main(int argc, char* argv[])
     QQuickView* qmlView = new QQuickView();
     qmlView->setFormat(qmlView->format());
     qmlView->setColor(Qt::transparent);
-    qmlView->setFlags(Qt::FramelessWindowHint | Qt::Tool); // 去掉 WindowStaysOnTopHint
+    qmlView->setFlags(Qt::FramelessWindowHint | Qt::Window | Qt::NoDropShadowWindowHint); 
     qmlView->setTransientParent(vsgWindow);                // 建立父子关系，主窗口关闭时联动
 
     QmlBridge* bridge = new QmlBridge(&app);
@@ -1131,7 +1159,7 @@ int main(int argc, char* argv[])
     // 每一个仿真软件都有一个死循环，在这里是用 QTimer 模拟的
     QTimer* renderTimer = new QTimer();
     auto lastFrameTime = std::chrono::steady_clock::now();
-    QObject::connect(renderTimer, &QTimer::timeout, [vsgWindow, viewer, camera, &app, editor, simUpdateHandler, mapManipulator, bridge, lastFrameTime, dataManager, clock, rockyContext]() mutable {
+    QObject::connect(renderTimer, &QTimer::timeout, [vsgWindow, viewer, camera, scene, &app, editor, simUpdateHandler, mapManipulator, bridge, lastFrameTime, dataManager, clock, rockyContext]() mutable {
         if (!vsgWindow || !viewer || !vsgWindow->isExposed() || vsgWindow->width() <= 0 || vsgWindow->height() <= 0)
         {
             return;
@@ -1267,6 +1295,17 @@ int main(int argc, char* argv[])
                 }
 
                 viewer->update();
+
+                // ★ 统一编译：检查是否有新节点（如 TrackNode）加入并需要编译
+                if (simUpdateHandler->needsCompile() || editor->needsCompile())
+                {
+                    viewer->compile();
+                    simUpdateHandler->clearCompileFlag();
+                    editor->clearCompileFlag();
+                }
+
+                // TrackNode 直接在 apply() 里每帧更新，此处无需额外调用
+
                 viewer->recordAndSubmit();
                 viewer->present();
             }
@@ -1315,6 +1354,10 @@ int main(int argc, char* argv[])
                              if (qmlView) qmlView->show();
                          }
                      });
+
+    QObject::connect(vsgWindow, &QWindow::windowStateChanged, [bridge](Qt::WindowState) {
+        emit bridge->windowStateChanged();
+    });
 
     syncTimer->setParent(vsgWindow);
     renderTimer->setParent(vsgWindow);

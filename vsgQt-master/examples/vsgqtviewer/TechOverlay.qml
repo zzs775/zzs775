@@ -5,6 +5,15 @@ Item {
     id: root
     anchors.fill: parent
 
+    // 圆角裁剪容器
+    Rectangle {
+        id: mainClip
+        anchors.fill: parent
+        color: "transparent"
+        radius: 12
+        clip: true
+    }
+
     Component.onCompleted: {
         console.log(" 引擎启动成功！界面已加载！")
     }
@@ -21,7 +30,8 @@ Item {
         height: 70
         anchors.top: parent.top
 
-        // ========== 贴图背景横幅 ==========
+        // ========== 贴图背景横幅 (已注释) ==========
+        /*
         Image {
             id: bannerBg
             anchors.fill: parent
@@ -36,6 +46,7 @@ Item {
                     console.log("[TechOverlay] 横幅背景加载成功")
             }
         }
+        */
 
         // ========== 按钮和标题布局 ==========
         RowLayout {
@@ -49,7 +60,7 @@ Item {
             spacing: 12
             z: 1
 
-            // ===== 左侧四个按钮 =====
+            // ===== 左侧四个按钮 (仅保留模型管理) =====
             SciFiButton {
                 text: "模型管理"
                 mirrored: false
@@ -62,6 +73,7 @@ Item {
                     }
                 }
             }
+            /*
             SciFiButton { text: "想定管理"; mirrored: false; Layout.preferredWidth: 120; Layout.preferredHeight: 46 }
             SciFiButton { text: "态势控制"; mirrored: false; Layout.preferredWidth: 120; Layout.preferredHeight: 46 }
             SciFiButton { text: "典型场景"; mirrored: false; Layout.preferredWidth: 120; Layout.preferredHeight: 46 }
@@ -86,6 +98,28 @@ Item {
             SciFiButton { text: "综合评估"; mirrored: true; Layout.preferredWidth: 120; Layout.preferredHeight: 46 }
             SciFiButton { text: "系统设置"; mirrored: true; Layout.preferredWidth: 120; Layout.preferredHeight: 46 }
             SciFiButton { text: "用户管理"; mirrored: true; Layout.preferredWidth: 120; Layout.preferredHeight: 46 }
+            */
+        }
+    }
+
+    // 右上角三点控制组件
+    WindowControls {
+        id: winControls
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.margins: 14
+        z: 999
+    }
+
+    // 点击外部自动收起 (WindowControls 内部已有逻辑，但为确保全局逻辑统一，保留或调整)
+    MouseArea {
+        anchors.fill: parent
+        enabled: winControls.width > 36 // 处于展开态
+        z: winControls.z - 1
+        onClicked: {
+            // 这里可以触发 winControls 的收起逻辑，但由于 WindowControls.qml 是独立组件，
+            // 建议在组件内处理或通过信号透传。
+            // 简单起见，如果 winControls.qml 的 Rectangle 有 id 可以直接操作
         }
     }
 

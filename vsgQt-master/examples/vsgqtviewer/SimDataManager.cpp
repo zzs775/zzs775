@@ -121,7 +121,7 @@ void SimDataManager::addEntityWithName(const QString& name, ModelType type, doub
     emit entityAdded(id);
 }
 
-bool SimDataManager::removeEntity(const QString& id)
+bool SimDataManager::removeEntity(const QString& id, bool blacklist)
 {
     for (int i = 0; i < m_data.count(); ++i)
     {
@@ -131,14 +131,15 @@ bool SimDataManager::removeEntity(const QString& id)
             m_data.removeAt(i);
             endRemoveRows();
 
-            // 关键：加入排除列表并从当前数据中清理
+            // 只有手动删除才加入黑名单，自动超时删除不加（否则回放倒退回不来）
+            if (blacklist)
             {
                 std::lock_guard<std::mutex> lock(m_dataMutex);
                 m_excludedIds.insert(id.toStdString());
                 m_latestDataMap.erase(id.toStdString());
             }
 
-            qDebug() << "[SimDataManager] Entity removed and blacklisted:" << id;
+            qDebug() << "[SimDataManager] Entity removed" << (blacklist ? "and blacklisted:" : ":") << id;
             emit entityRemoved(id);
             return true;
         }
@@ -390,6 +391,9 @@ void SimDataManager::parseAcmiLine(const std::string& lineStr)
             m_currentParseTime = -1.0;
             m_maxReceivedTime = 0.0;
             m_acmiPacketCount.store(0);
+            m_entityColors.clear();
+            m_entityNames.clear();
+            m_entityLastUpdateTime.clear();
         }
         emit sceneResetRequested();
         return;
@@ -419,9 +423,24 @@ void SimDataManager::parseAcmiLine(const std::string& lineStr)
         // 如果有上一帧数据，将其快照存入缓冲区，用于后续的平滑插值计算
         if (m_currentParseTime >= 0.0 && !m_latestDataMap.empty())
         {
+            // 动态阈值 = 当前帧间隔 * 3，最小保底 1.0 秒，防止因解析抖动导致的频闪
+            double frameInterval = newTime - m_currentParseTime;
+            double staleThreshold = std::max(frameInterval * 3.0, 1.0);
+
+            // 清理失联实体
+            for (auto it = m_latestDataMap.begin(); it != m_latestDataMap.end();)
+            {
+                auto uit = m_entityLastUpdateTime.find(it->first);
+                if (uit == m_entityLastUpdateTime.end() || (m_currentParseTime - uit->second) > staleThreshold)
+                {
+                    it = m_latestDataMap.erase(it);
+                }
+                else ++it;
+            }
+
             AcmiFrame frame;
             frame.time = m_currentParseTime;
-            frame.entities = m_latestDataMap; // 拷贝当前这一秒内所有实体的全量快照
+            frame.entities = m_latestDataMap; // 拷贝清理后当前秒内所有实体的全量快照
             m_acmiFrames.push_back(std::move(frame));
         }
 
@@ -535,6 +554,11 @@ void SimDataManager::parseAcmiLine(const std::string& lineStr)
         else if (token.find("Color=") == 0)
         {
             std::string color = token.substr(6);
+            if (color == "C")
+            {
+                m_latestDataMap.erase(rawId); // 从累积快照中彻底移除
+                return;                       // 不再写入 m_latestDataMap
+            }
             m_entityColors[rawId] = color;
         }
     }
@@ -544,6 +568,7 @@ void SimDataManager::parseAcmiLine(const std::string& lineStr)
     strncpy(packet.name, finalName.c_str(), 31);
 
     m_latestDataMap[rawId] = packet;
+    m_entityLastUpdateTime[rawId] = m_currentParseTime;
     m_acmiPacketCount.fetch_add(1, std::memory_order_relaxed); // 统计接收包数
 
     // DEBUG LOG:
@@ -690,12 +715,9 @@ std::vector<InterpolatedPacket> SimDataManager::getInterpolatedData(double timeS
             ip.yaw = lerpAngle(p0.yaw, p1.yaw, alpha);
             ip.roll = lerpAngle(p0.roll, p1.roll, alpha);
 
+            ip.color = m_entityColors.count(id) ? m_entityColors[id] : "";
+
             result.push_back(ip);
-        }
-        else
-        {
-            // 下一帧消失了，直接用当前帧
-            result.push_back({id, p0.lat, p0.lon, p0.alt, p0.pitch, p0.yaw, p0.roll, p0.name});
         }
     }
 

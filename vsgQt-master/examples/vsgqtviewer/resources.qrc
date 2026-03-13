@@ -9,5 +9,7 @@
         <file>ModelListPanel.qml</file>
         <file>ManagePanel.qml</file>
         <file>TimelineBar.qml</file>
+        <file>WinBtn.qml</file>
+        <file>WindowControls.qml</file>
     </qresource>
 </RCC>

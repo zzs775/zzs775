@@ -106,6 +106,45 @@ vsg::ref_ptr<vsg::Node> ModelFactory::getRawModel(const std::string& filename)
     return model;
 }
 
+vsg::ref_ptr<vsg::Node> ModelFactory::getColoredModel(const std::string& filename, const std::string& teamColor)
+{
+    if (teamColor.empty())
+        return getRawModel(filename);
+
+    std::string key = filename + "|" + teamColor;
+    auto it = _coloredModelCache.find(key);
+    if (it != _coloredModelCache.end())
+        return it->second;
+
+    // 从磁盘重新读取一份完全独立的模型副本 ——
+    // VSG 的 clone/CopyOp 无论如何都会共享 DescriptorBuffer/BufferInfo，
+    // 导致材质修改互相污染。只有重新读取才能获得物理隔离的材质数据。
+    if (!_vsgXchangeLoaded)
+    {
+        _options->add(vsgXchange::all::create());
+        _vsgXchangeLoaded = true;
+    }
+
+    auto model = vsg::read_cast<vsg::Node>(filename, _options);
+    if (!model)
+    {
+        qWarning() << "[Color] 重新读取模型失败，回退到原始缓存:" << QString::fromStdString(filename);
+        return getRawModel(filename);
+    }
+
+    // 对独立副本执行与 getRawModel 相同的材质修正流程
+    FixMaterialVisitor fixMaterial;
+    model->accept(fixMaterial);
+    forceBrightMaterial(model);
+
+    // 在完全独立的模型上应用阵营颜色
+    applyTeamColor(model.get(), teamColor);
+
+    _coloredModelCache[key] = model;
+    qDebug() << "[Color] 已缓存染色模型:" << QString::fromStdString(key);
+    return model;
+}
+
 vsg::ref_ptr<vsg::Node> ModelFactory::createLabel(const QString& text, double height)
 {
     // 安全字体屏蔽机制：字体缺失时直接返回空节点，禁用3D文字标签功能
@@ -181,11 +220,12 @@ double ModelFactory::computeScaleFactor(const vsg::dbox& box, double targetSize)
 vsg::ref_ptr<vsg::Node> ModelFactory::createVisualEntity(
     const std::string& filename,
     const QString& label,
-    double targetSize)
+    double targetSize,
+    const std::string& teamColor)
 {
     auto group = vsg::Group::create();
 
-    auto model = getRawModel(filename);
+    auto model = getColoredModel(filename, teamColor);
     if (!model)
     {
         qWarning() << "ModelFactory: 无法创建实体，模型加载失败";

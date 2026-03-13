@@ -61,6 +61,32 @@ void QmlBridge::cancelPlacement()
     }
 }
 
+void QmlBridge::minimizeWindow()
+{
+    if (m_window) {
+        m_window->showMinimized();
+    }
+}
+
+void QmlBridge::maximizeWindow()
+{
+    if (m_window) {
+        if (m_window->windowState() & Qt::WindowMaximized) {
+            m_window->showNormal();
+        } else {
+            m_window->showMaximized();
+        }
+        emit windowStateChanged();
+    }
+}
+
+void QmlBridge::closeWindow()
+{
+    if (m_window) {
+        m_window->close();
+    }
+}
+
 double QmlBridge::simProgress() const
 {
     return _clock ? _clock->progress() : 0.0;

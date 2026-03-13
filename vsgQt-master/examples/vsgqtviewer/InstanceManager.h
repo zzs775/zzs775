@@ -9,6 +9,11 @@
 #include <unordered_map>
 #include <vsg/all.h>
 
+// 追加：轨迹线与 ECS 组件头文件
+#include <rocky/ecs/Transform.h>
+#include <rocky/ecs/Line.h>
+#include <rocky/vsg/ecs/LineSystem.h>
+
 // --- Core ECS Components ---
 
 // Identifier component
@@ -16,6 +21,13 @@ struct InfoComponent
 {
     std::string id;
     std::string name;
+};
+
+// 新增：轨迹线颜色标签组件（极简，仅用于颜色状态存储）
+struct EntityColorTag
+{
+    float r = 1.0f, g = 1.0f, b = 1.0f, a = 1.0f;
+    bool dirty = false;
 };
 
 // Transform component bridging to Rocky/VSG
