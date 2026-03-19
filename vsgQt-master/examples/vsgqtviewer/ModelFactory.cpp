@@ -1,4 +1,5 @@
 #include "ModelFactory.h"
+#include <QFile>
 #include <vsg/utils/ComputeBounds.h>
 
 ModelFactory* ModelFactory::instance()
@@ -43,31 +44,51 @@ void ModelFactory::init(vsg::ref_ptr<vsg::Options> options)
 {
     _options = options;
 
+    // ★ 诊断：打印 VSG Options 中的所有搜索路径
+    qDebug() << "  [ModelFactory] VSG Options 搜索路径:";
+    for (const auto& p : _options->paths)
+    {
+        qDebug() << "    -> " << QString::fromStdString(p.string());
+    }
+
+    // 字体候选列表（优先序排列）
     QStringList fontPaths = {
+        "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/fonts/times.vsgb",
+        "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install/share/rocky/data/times.vsgb",
+        "C:/Windows/Fonts/simhei.ttf", 
+        "C:/Windows/Fonts/msyh.ttc",   
+        "C:/Windows/Fonts/arial.ttf",  
         "fonts/SimHei.ttf",
-        "fonts/simhei.ttf",
-        "C:/Windows/Fonts/simhei.ttf",
-        "C:/Windows/Fonts/msyh.ttc",
-        "C:/Windows/Fonts/arial.ttf"};
+        "fonts/times.vsgb"
+    };
 
     for (const auto& fontPath : fontPaths)
     {
+        // ★ 诊断：先用 QFile 检查该路径在磁盘上是否真正存在
+        bool fileExists = QFile::exists(fontPath);
+        qDebug() << "  [Font] 尝试:" << fontPath
+                 << " | 磁盘存在:" << (fileExists ? "YES" : "NO");
+
         _font = vsg::read_cast<vsg::Font>(fontPath.toStdString(), _options);
         if (_font)
         {
-            qDebug() << "  ModelFactory: 字体加载成功 ->" << fontPath;
+            qDebug() << "  ★ [ModelFactory] 字体成功加载 ->" << fontPath;
             break;
+        }
+        else
+        {
+            qDebug() << "  [Font] vsg::read_cast 返回 nullptr ->" << fontPath;
         }
     }
 
     if (!_font)
     {
-        qWarning() << "   ModelFactory: 字体加载失败！标签功能将不可用。";
-        qWarning() << "   请确保 fonts/SimHei.ttf 存在于 bin 目录下";
+        qWarning() << "   ModelFactory: 所有字体路径均失败！标签功能将不可用。";
+        qWarning() << "   请确认 .vsgb 字体文件确实存在于上述路径之一";
     }
 
     _initialized = true;
-    qDebug() << "ModelFactory: 初始化完成";
+    qDebug() << "ModelFactory: 初始化完成, 字体状态:" << (_font ? "已加载" : "未加载");
 }
 
 vsg::ref_ptr<vsg::Node> ModelFactory::getRawModel(const std::string& filename)
@@ -147,49 +168,88 @@ vsg::ref_ptr<vsg::Node> ModelFactory::getColoredModel(const std::string& filenam
 
 vsg::ref_ptr<vsg::Node> ModelFactory::createLabel(const QString& text, double height)
 {
-    // 安全字体屏蔽机制：字体缺失时直接返回空节点，禁用3D文字标签功能
-    // 未来优化方向：使用QML 2D屏幕空间标签系统替代VSG 3D文字
-    if (!_font)
-    {
-        // 静默返回，不打印警告避免刷屏
-        return nullptr;
-    }
-
     if (text.isEmpty())
-    {
         return nullptr;
+
+    // 字体回退机制
+    vsg::ref_ptr<vsg::Font> font = _font;
+    if (!font)
+    {
+        font = vsg::read_cast<vsg::Font>("fonts/times.vsgb", _options);
+        if (!font)
+        {
+            qWarning() << "  [Label] 字体加载失败，无法创建标签：" << text;
+            return nullptr;
+        }
+        qDebug() << "  [Label] 使用回退字体 times.vsgb";
     }
 
     try
     {
         auto layout = vsg::StandardLayout::create();
         layout->horizontalAlignment = vsg::StandardLayout::CENTER_ALIGNMENT;
-        layout->verticalAlignment = vsg::StandardLayout::BASELINE_ALIGNMENT;
-        layout->color = vsg::vec4(0.0f, 1.0f, 1.0f, 1.0f);
+        layout->verticalAlignment   = vsg::StandardLayout::BASELINE_ALIGNMENT;
+        layout->color               = vsg::vec4(0.0f, 1.0f, 1.0f, 1.0f);  // 青色
+        layout->outlineColor        = vsg::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        layout->outlineWidth        = 0.1f;
+
+        // ★ Billboard：字体始终朝向相机
+        layout->billboard = true;
 
         auto textNode = vsg::Text::create();
-        textNode->font = _font;
-        textNode->text = vsg::stringValue::create(text.toStdString());
+        textNode->font   = font;
+        textNode->text   = vsg::stringValue::create(text.toStdString());
         textNode->layout = layout;
 
-        double labelScale = height * 0.3;
+        // ★【关键修复2】必须调用 setup() 才能生成 GPU 顶点与图集数据
+        textNode->setup(0, _options);
 
-        vsg::dmat4 rotationMatrix = vsg::rotate(vsg::PI * 0.5, 1.0, 0.0, 0.0);
-        vsg::dmat4 scaleMatrix = vsg::scale(labelScale, labelScale, labelScale);
-        vsg::dmat4 translateMatrix = vsg::translate(0.0, 0.0, height * 0.5);
+        // ★【原因排查 2】: 解决文字在 Rocky 日志深度下不显示的问题
+        // 遍历生成后的文字管线，强行关掉它的深度测试和写入，让它作为 UI 绝对悬浮在最上层
+        struct DisableDepthVisitor : public vsg::Visitor
+        {
+            void apply(vsg::Object& object) override { object.traverse(*this); }
+            void apply(vsg::BindGraphicsPipeline& bindPipeline) override
+            {
+                if (bindPipeline.pipeline)
+                {
+                    for (auto& state : bindPipeline.pipeline->pipelineStates)
+                    {
+                        if (auto ds = state.cast<vsg::DepthStencilState>())
+                        {
+                            ds->depthTestEnable = VK_FALSE;
+                            ds->depthWriteEnable = VK_FALSE;
+                        }
+                    }
+                }
+                bindPipeline.traverse(*this);
+            }
+        };
+        DisableDepthVisitor ddv;
+        textNode->accept(ddv);
+
+        // ★【关键修复3】调大基础字号并加大间距，防止嵌在模型体内
+        double labelScale = height * 1.5;
 
         auto transform = vsg::MatrixTransform::create();
-        transform->matrix = translateMatrix * rotationMatrix * scaleMatrix;
+        transform->matrix = vsg::scale(labelScale, labelScale, labelScale);
         transform->addChild(textNode);
 
+        qDebug() << "  [Label] 已创建标签节点:" << text << "scale=" << labelScale;
         return transform;
+    }
+    catch (const std::exception& e)
+    {
+        qWarning() << "  [Label] 创建标签时发生异常:" << e.what();
+        return nullptr;
     }
     catch (...)
     {
-        // 捕获任何异常，确保不会因字体问题导致崩溃
+        qWarning() << "  [Label] 创建标签时发生未知异常";
         return nullptr;
     }
 }
+
 
 vsg::dbox ModelFactory::computeBoundingBox(vsg::ref_ptr<vsg::Node> node)
 {
@@ -234,10 +294,6 @@ vsg::ref_ptr<vsg::Node> ModelFactory::createVisualEntity(
 
     vsg::dbox bounds = computeBoundingBox(model);
 
-    double rawWidth = bounds.max.x - bounds.min.x;
-    double rawHeight = bounds.max.y - bounds.min.y;
-    double rawDepth = bounds.max.z - bounds.min.z;
-
     double scaleFactor = computeScaleFactor(bounds, targetSize);
 
     vsg::dvec3 center(
@@ -263,15 +319,21 @@ vsg::ref_ptr<vsg::Node> ModelFactory::createVisualEntity(
     transform->addChild(model);
     group->addChild(transform);
 
-    if (_font && !label.isEmpty())
+    if (!label.isEmpty())
     {
         auto labelNode = createLabel(label, targetSize);
         if (labelNode)
         {
             auto labelTransform = vsg::MatrixTransform::create();
-            labelTransform->matrix = vsg::translate(0.0, 0.0, targetSize * 0.5);
+            // 将标签大幅上移，防止被庞大的飞机模型或包围盒遮挡
+            labelTransform->matrix = vsg::translate(0.0, 0.0, targetSize * 3.0);
             labelTransform->addChild(labelNode);
             group->addChild(labelTransform);
+            qDebug() << "  [createVisualEntity] 标签节点已挂入 group:" << label;
+        }
+        else
+        {
+            qWarning() << "  [createVisualEntity] 标签创建失败，无标签显示:" << label;
         }
     }
 

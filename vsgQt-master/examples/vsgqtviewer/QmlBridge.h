@@ -45,6 +45,9 @@ class QmlBridge : public QObject
     Q_PROPERTY(double maxBufferedProgress READ maxBufferedProgress NOTIFY maxBufferedProgressChanged)
     Q_PROPERTY(bool isMaximized READ isMaximized NOTIFY windowStateChanged)
 
+    // 第四组：当前正在观测遥测数据的实体 ID（用于数据按钮高亮）
+    Q_PROPERTY(QString activeDataEntityId READ activeDataEntityId NOTIFY activeDataEntityIdChanged)
+
 public:
     explicit QmlBridge(QObject* parent = nullptr) : QObject(parent) {}
 
@@ -56,10 +59,12 @@ public:
     Q_INVOKABLE void removeEntity(const QString& id);
     Q_INVOKABLE void cancelPlacement();
     Q_INVOKABLE void untether();
+    Q_INVOKABLE void showTelemetry(const QString& id);
 
     Q_INVOKABLE void minimizeWindow();
     Q_INVOKABLE void maximizeWindow();
     Q_INVOKABLE void closeWindow();
+    Q_INVOKABLE void startWindowDrag();
 
     // READ for Phase 1
     double longitude() const { return m_longitude; }
@@ -74,6 +79,7 @@ public:
     int fps() const { return m_fps; }
     int acmiPacketCount() const { return m_acmiPacketCount; }
     bool acmiBufferMode() const { return m_acmiBufferMode; }
+    QString activeDataEntityId() const { return m_activeDataEntityId; }
 
     // READ and Invokables for Phase 2
     double simProgress() const;
@@ -102,6 +108,9 @@ public:
 
     void updateAcmiStats(int count, bool bufferMode);
 
+    class AcmiTelemetryForwarder* telemetryForwarder() { return m_telemetryForwarder; }
+    void setTelemetryForwarder(class AcmiTelemetryForwarder* f) { m_telemetryForwarder = f; }
+
 signals:
     void modelPlacementRequested(const QString& fileName, const QString& fullPath);
     void focusEntityRequested(const QString& id);
@@ -116,10 +125,12 @@ signals:
     void acmiStatsChanged();
     void maxBufferedProgressChanged();
     void windowStateChanged();
+    void activeDataEntityIdChanged();
 
 private:
     QWindow* m_window = nullptr;
     SimClock* _clock = nullptr;
+    class QProcess* m_telemetryProcess = nullptr;  // ★ 追踪遥测进程状态
 
     double m_longitude = 0.0;
     double m_latitude = 0.0;
@@ -134,4 +145,6 @@ private:
     int m_acmiPacketCount = 0;
     bool m_acmiBufferMode = false;
     double m_maxBufferedProgress = 0.0;
+    class AcmiTelemetryForwarder* m_telemetryForwarder = nullptr;
+    QString m_activeDataEntityId;
 };

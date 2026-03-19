@@ -22,10 +22,10 @@
 	"dependencies" : 
 	[
 		{
-			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
+			"id" : "vsgqtviewer::@62eebd0ffc708f9bd172"
 		},
 		{
-			"id" : "vsgqtviewer::@62eebd0ffc708f9bd172"
+			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
 		}
 	],
 	"id" : "ALL_BUILD::@62eebd0ffc708f9bd172",

@@ -122,6 +122,14 @@
 		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install/lib/cmake/rocky/rocky-config.cmake",
 		"C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeFindDependencyMacro.cmake",
 		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install/lib/cmake/rocky/rocky-targets.cmake",
+		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui/imgui-config.cmake",
+		"C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeFindDependencyMacro.cmake",
+		"C:/Program Files/CMake/share/cmake-4.2/Modules/FindVulkan.cmake",
+		"C:/Program Files/CMake/share/cmake-4.2/Modules/FindPackageHandleStandardArgs.cmake",
+		"C:/Program Files/CMake/share/cmake-4.2/Modules/FindPackageMessage.cmake",
+		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets.cmake",
+		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets-debug.cmake",
+		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets-release.cmake",
 		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/resources.qrc"
 	],
 	"CMAKE_SOURCE_DIR" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master",
@@ -130,6 +138,12 @@
 	"DEP_FILE_RULE_NAME" : "",
 	"HEADERS" : 
 	[
+		[
+			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/AcmiTelemetryForwarder.h",
+			"MU",
+			"EWIEGA46WW/moc_AcmiTelemetryForwarder.cpp",
+			null
+		],
 		[
 			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/AcmiUdpReceiver.h",
 			"MU",

@@ -16,8 +16,8 @@ Item {
         width: 36
         height: 36
         radius: 18
-        color: dotHover.containsMouse ? Qt.rgba(1,1,1,0.25) : Qt.rgba(1,1,1,0.15)
-        border.color: dotHover.containsMouse ? Qt.rgba(1,1,1,0.6) : Qt.rgba(1,1,1,0.35)
+        color: dotMouseArea.containsMouse ? Qt.rgba(1,1,1,0.25) : Qt.rgba(1,1,1,0.15)
+        border.color: dotMouseArea.containsMouse ? Qt.rgba(1,1,1,0.6) : Qt.rgba(1,1,1,0.35)
         border.width: 1
         visible: !controlsBar.visible
 
@@ -32,13 +32,34 @@ Item {
             }
         }
 
-        HoverHandler { id: dotHover }
+        MouseArea {
+            id: dotMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
 
-        TapHandler {
-            onTapped: {
-                controlsBar.visible = true
-                root.width = controlsBar.width
-                root.height = 46
+            property point pressPos: Qt.point(0,0)
+            property bool isDragging: false
+
+            onPressed: (mouse) => {
+                pressPos = Qt.point(mouse.x, mouse.y)
+                isDragging = false
+            }
+
+            onPositionChanged: (mouse) => {
+                if (pressed && !isDragging) {
+                    if (Math.abs(mouse.x - pressPos.x) > 3 || Math.abs(mouse.y - pressPos.y) > 3) {
+                        isDragging = true
+                        if (typeof ControlBridge !== "undefined") ControlBridge.startWindowDrag()
+                    }
+                }
+            }
+
+            onClicked: {
+                if (!isDragging) {
+                    controlsBar.visible = true
+                    root.width = controlsBar.width
+                    root.height = 46
+                }
             }
         }
     }
@@ -56,6 +77,28 @@ Item {
 
         opacity: visible ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 150 } }
+
+        MouseArea {
+            anchors.fill: parent
+            z: -1 // 确保在按钮下方
+
+            property point pressPos: Qt.point(0,0)
+            property bool isDragging: false
+
+            onPressed: (mouse) => {
+                pressPos = Qt.point(mouse.x, mouse.y)
+                isDragging = false
+            }
+
+            onPositionChanged: (mouse) => {
+                if (pressed && !isDragging) {
+                    if (Math.abs(mouse.x - pressPos.x) > 3 || Math.abs(mouse.y - pressPos.y) > 3) {
+                        isDragging = true
+                        if (typeof ControlBridge !== "undefined") ControlBridge.startWindowDrag()
+                    }
+                }
+            }
+        }
 
         Row {
             anchors.centerIn: parent

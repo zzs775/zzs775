@@ -418,6 +418,9 @@ glm_DIR:PATH=C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installe
 //The directory containing a CMake configuration file for glslang.
 glslang_DIR:PATH=C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/glslang
 
+//The directory containing a CMake configuration file for imgui.
+imgui_DIR:PATH=C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui
+
 //The directory containing a CMake configuration file for rocky.
 rocky_DIR:PATH=C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install/lib/cmake/rocky
 
@@ -635,7 +638,7 @@ DOXYGEN_EXECUTABLE-ADVANCED:INTERNAL=1
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //Details about finding Vulkan
-FIND_PACKAGE_MESSAGE_DETAILS_Vulkan:INTERNAL=[C:/VulkanSDK/1.4.328.1/Lib/vulkan-1.lib][C:/VulkanSDK/1.4.328.1/include][found components: glslc glslangValidator ][v1.4.328(1.1.70.0)]
+FIND_PACKAGE_MESSAGE_DETAILS_Vulkan:INTERNAL=[C:/VulkanSDK/1.4.328.1/Lib/vulkan-1.lib][C:/VulkanSDK/1.4.328.1/include][found components: glslc glslangValidator ][v1.4.328()]
 //Details about finding WrapAtomic
 FIND_PACKAGE_MESSAGE_DETAILS_WrapAtomic:INTERNAL=[1][v()]
 //Details about finding WrapVulkanHeaders

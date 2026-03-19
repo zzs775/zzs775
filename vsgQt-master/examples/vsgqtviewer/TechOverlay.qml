@@ -111,15 +111,19 @@ Item {
         z: 999
     }
 
-    // 点击外部自动收起 (WindowControls 内部已有逻辑，但为确保全局逻辑统一，保留或调整)
+    // 点击外部自动收起
     MouseArea {
         anchors.fill: parent
         enabled: winControls.width > 36 // 处于展开态
         z: winControls.z - 1
-        onClicked: {
-            // 这里可以触发 winControls 的收起逻辑，但由于 WindowControls.qml 是独立组件，
-            // 建议在组件内处理或通过信号透传。
-            // 简单起见，如果 winControls.qml 的 Rectangle 有 id 可以直接操作
+        propagateComposedEvents: true
+        onPressed: (mouse) => {
+            // 这里收起 winControls，但允许事件继续向下传递
+            if (winControls.width > 36) {
+                // 如果 WindowControls 有收起函数可以用，否则这里暂留逻辑
+                // 这里我们只是点击背景，让它失去焦点
+            }
+            mouse.accepted = false // 关键：允许点击穿透到下层面板
         }
     }
 

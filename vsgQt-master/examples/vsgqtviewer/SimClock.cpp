@@ -9,7 +9,7 @@ SimClock::SimClock(QObject* parent) : QObject(parent),
                                       _fractionalSeconds(0.0)
 {
     _timer = new QTimer(this);
-    _timer->setInterval(33); // ~30 fps update
+    _timer->setInterval(33); // 仅用于 UI 通知（timeChanged）
     connect(_timer, &QTimer::timeout, this, &SimClock::onTick);
 }
 
@@ -66,6 +66,38 @@ void SimClock::stop()
     _current = _start;
     _fractionalSeconds = 0.0;
     emit timeChanged();
+}
+
+void SimClock::tickFixed(double dt)
+{
+    if (!_animating) return;
+
+    // 【核心：固定步长时间推进】
+    // dt 是渲染循环的固定间隔（如 0.008 秒），乘以倍速得到仿真推进量
+    double simDt = dt * _multiplier;
+    _fractionalSeconds += simDt;
+
+    // 当积累的小数秒超过 1 秒时，同步更新 rocky::DateTime 整数位
+    if (_fractionalSeconds >= 1.0 || _fractionalSeconds <= -1.0)
+    {
+        rocky::TimeStamp intSeconds = static_cast<rocky::TimeStamp>(_fractionalSeconds);
+        _fractionalSeconds -= intSeconds;
+        _current = rocky::DateTime(_current.asTimeStamp() + intSeconds);
+
+        // 边界检查：防止跑过头
+        if (_current.asTimeStamp() > _stop.asTimeStamp())
+        {
+            _current = _stop;
+            _fractionalSeconds = 0.0;
+            setAnimating(false);
+        }
+        else if (_current.asTimeStamp() < _start.asTimeStamp())
+        {
+            _current = _start;
+            _fractionalSeconds = 0.0;
+            setAnimating(false);
+        }
+    }
 }
 
 void SimClock::seekToProgress(double p)
@@ -133,19 +165,10 @@ double SimClock::totalSeconds() const
 
 double SimClock::currentSeconds() const
 {
+    // 【固定步长模式】直接返回累积时间，不再做壁钟补偿
+    // 这样每次渲染循环调用时，看到的时间永远是稳定的、一致的、不会跳变的
     double base = static_cast<double>(_current.asTimeStamp() - _start.asTimeStamp()) + _fractionalSeconds;
-
-    // 如果没有在播放，直接返回静态时间
-    if (!_animating) return base;
-
-    // 【高精度补偿】
-    // 虽然 onTick 每 33ms 调一次，但渲染循环是 16ms 调一次。
-    // 为了让渲染循环看到平滑的时间流，我们计算从"上一次 tick"到现在这一瞬间又过了多少物理时间。
-    auto now = std::chrono::steady_clock::now();
-    double extraRealSeconds = std::chrono::duration<double>(now - _lastTickTime).count();
-
-    // 补偿后的时间 = 基础时间 + (物理经过时间 * 倍速)
-    return base + (extraRealSeconds * _multiplier);
+    return base;
 }
 
 bool SimClock::isAnimating() const
@@ -170,40 +193,10 @@ rocky::DateTime SimClock::stopTime() const
 
 void SimClock::onTick()
 {
+    // 【固定步长模式】onTick 仅作为 UI 信号通知，不再推进时间
+    // 时间推进完全由 tickFixed() 接管，从渲染循环主动调用
     if (!_animating) return;
-
-    // 计算真实的物理经过时间（高精度）
-    auto now = std::chrono::steady_clock::now();
-    double realDelta = std::chrono::duration<double>(now - _lastTickTime).count();
-    _lastTickTime = now;
-
-    // 将物理时间映射到仿真步长
-    double dtSeconds = realDelta * _multiplier;
-    _fractionalSeconds += dtSeconds;
-
-    // 当积累的小数秒超过1秒时，同步更新 rocky::DateTime 整数位
-    if (_fractionalSeconds >= 1.0 || _fractionalSeconds <= -1.0)
-    {
-        rocky::TimeStamp intSeconds = static_cast<rocky::TimeStamp>(_fractionalSeconds);
-        _fractionalSeconds -= intSeconds;
-        _current = rocky::DateTime(_current.asTimeStamp() + intSeconds);
-
-        // 边界检查：防止跑过头
-        if (_current.asTimeStamp() > _stop.asTimeStamp())
-        {
-            _current = _stop;
-            _fractionalSeconds = 0.0;
-            setAnimating(false);
-        }
-        else if (_current.asTimeStamp() < _start.asTimeStamp())
-        {
-            _current = _start;
-            _fractionalSeconds = 0.0;
-            setAnimating(false);
-        }
-
-        emit timeChanged();
-    }
+    emit timeChanged();
 }
 
 QString SimClock::formatDateTime(const rocky::DateTime& dt) const

@@ -1603,7 +1603,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "[C:/VulkanSDK/1.4.328.1/Lib/vulkan-1.lib][C:/VulkanSDK/1.4.328.1/include][found components: glslc glslangValidator ][v1.4.328(1.1.70.0)]"
+			"value" : "[C:/VulkanSDK/1.4.328.1/Lib/vulkan-1.lib][C:/VulkanSDK/1.4.328.1/include][found components: glslc glslangValidator ][v1.4.328()]"
 		},
 		{
 			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_WrapAtomic",
@@ -8188,6 +8188,18 @@
 			],
 			"type" : "PATH",
 			"value" : "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/glslang"
+		},
+		{
+			"name" : "imgui_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for imgui."
+				}
+			],
+			"type" : "PATH",
+			"value" : "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui"
 		},
 		{
 			"name" : "rocky_DIR",

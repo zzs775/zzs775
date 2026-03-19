@@ -6,10 +6,11 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # 1. 查找依赖
-find_package(Qt6 COMPONENTS Core Gui Quick Widgets QuickControls2 REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Quick Widgets QuickControls2 Network REQUIRED)
 find_package(vsg CONFIG REQUIRED)
 find_package(vsgXchange CONFIG REQUIRED)
 find_package(rocky CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 # vsgQt 是当前项目的一部分，不需要 find_package
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -32,6 +33,7 @@ set(SOURCES
     SimClock.h
     SimClock.cpp
     AcmiUdpReceiver.h
+    AcmiTelemetryForwarder.h
     StyleHelper.h
     TechOverlay.qml
     SciFiButton.qml
@@ -53,12 +55,15 @@ source_group("QML Files"    REGULAR_EXPRESSION "\\.qml$")
 
 # 4. 链接库
 target_link_libraries(vsgqtviewer PRIVATE
-    Qt6::Core Qt6::Gui Qt6::Quick Qt6::Widgets Qt6::QuickControls2
+    Qt6::Core Qt6::Gui Qt6::Quick Qt6::Widgets Qt6::QuickControls2 Qt6::Network
     vsg::vsg
     vsgXchange::vsgXchange
     rocky::rocky
     vsgQt
+    imgui::imgui
 )
+
+
 
 # 5. 每次构建后自动复制 QML 和图片到 bin 目录（POST_BUILD 保证每次 Build 都同步）
 add_custom_command(TARGET vsgqtviewer POST_BUILD

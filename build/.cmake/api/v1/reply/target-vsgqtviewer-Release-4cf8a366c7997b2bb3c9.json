@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "bin/MinSizeRel/vsgqtviewer.exe"
+			"path" : "bin/Release/vsgqtviewer.exe"
 		},
 		{
-			"path" : "bin/MinSizeRel/vsgqtviewer.pdb"
+			"path" : "bin/Release/vsgqtviewer.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -32,14 +32,14 @@
 			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Quick/Qt6QuickConfig.cmake",
 			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6/Qt6Config.cmake",
 			"CMakeLists.txt",
-			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Qml/Qt6QmlTargets.cmake",
-			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Qml/Qt6QmlConfig.cmake",
-			"C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeFindDependencyMacro.cmake",
-			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake",
-			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Quick/Qt6QuickDependencies.cmake",
 			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkTargets.cmake",
 			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Network/Qt6NetworkConfig.cmake",
+			"C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeFindDependencyMacro.cmake",
+			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake",
 			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Qml/Qt6QmlDependencies.cmake",
+			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Qml/Qt6QmlConfig.cmake",
+			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Quick/Qt6QuickDependencies.cmake",
+			"C:/Qt/6.10.1/mingw_64/lib/cmake/Qt6Qml/Qt6QmlTargets.cmake",
 			"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install/lib/cmake/rocky/rocky-targets.cmake",
 			"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install/lib/cmake/rocky/rocky-config.cmake",
 			"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/spdlog/spdlogConfigTargets.cmake",
@@ -59,13 +59,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 45,
+				"line" : 49,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 53,
+				"line" : 57,
 				"parent" : 0
 			},
 			{
@@ -114,12 +114,12 @@
 				"parent" : 7
 			},
 			{
-				"file" : 9,
+				"file" : 11,
 				"parent" : 11
 			},
 			{
 				"command" : 7,
-				"file" : 9,
+				"file" : 11,
 				"line" : 50,
 				"parent" : 12
 			},
@@ -142,76 +142,76 @@
 				"parent" : 15
 			},
 			{
-				"file" : 6,
+				"file" : 10,
 				"parent" : 16
 			},
 			{
 				"command" : 3,
-				"file" : 6,
-				"line" : 55,
-				"parent" : 17
-			},
-			{
-				"file" : 5,
-				"parent" : 18
-			},
-			{
-				"command" : 2,
-				"file" : 5,
-				"line" : 61,
-				"parent" : 19
-			},
-			{
-				"command" : 3,
-				"file" : 6,
+				"file" : 10,
 				"line" : 43,
 				"parent" : 17
 			},
 			{
-				"file" : 12,
-				"parent" : 21
+				"file" : 9,
+				"parent" : 18
 			},
 			{
 				"command" : 7,
-				"file" : 12,
+				"file" : 9,
 				"line" : 50,
-				"parent" : 22
+				"parent" : 19
 			},
 			{
 				"command" : 6,
 				"file" : 8,
 				"line" : 142,
-				"parent" : 23
+				"parent" : 20
 			},
 			{
 				"command" : 5,
 				"file" : 7,
 				"line" : 125,
-				"parent" : 24
+				"parent" : 21
 			},
 			{
 				"command" : 4,
 				"file" : 7,
 				"line" : 93,
+				"parent" : 22
+			},
+			{
+				"file" : 6,
+				"parent" : 23
+			},
+			{
+				"command" : 3,
+				"file" : 6,
+				"line" : 52,
+				"parent" : 24
+			},
+			{
+				"file" : 5,
 				"parent" : 25
 			},
 			{
-				"file" : 11,
+				"command" : 2,
+				"file" : 5,
+				"line" : 61,
 				"parent" : 26
 			},
 			{
 				"command" : 3,
-				"file" : 11,
-				"line" : 52,
-				"parent" : 27
+				"file" : 10,
+				"line" : 55,
+				"parent" : 17
 			},
 			{
-				"file" : 10,
+				"file" : 12,
 				"parent" : 28
 			},
 			{
 				"command" : 2,
-				"file" : 10,
+				"file" : 12,
 				"line" : 61,
 				"parent" : 29
 			},
@@ -384,7 +384,7 @@
 			{
 				"command" : 10,
 				"file" : 0,
-				"line" : 15,
+				"line" : 16,
 				"parent" : 0
 			}
 		]
@@ -418,6 +418,10 @@
 		},
 		{
 			"backtrace" : 2,
+			"id" : "Qt6::Network::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 2,
 			"id" : "vsg::vsg::@6890427a1f51a3e7e1df"
 		},
 		{
@@ -431,6 +435,10 @@
 		{
 			"backtrace" : 2,
 			"id" : "vsgQt::@6d4b21210806863a0e24"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "imgui::imgui::@62eebd0ffc708f9bd172"
 		}
 	],
 	"compileGroups" : 
@@ -439,7 +447,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O1 /Ob1 /DNDEBUG -std:c++17"
+					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++17"
 				},
 				{
 					"backtrace" : 58,
@@ -573,7 +581,7 @@
 			[
 				{
 					"backtrace" : 0,
-					"path" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/vsgqtviewer_autogen/include_MinSizeRel"
+					"path" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/vsgqtviewer_autogen/include_Release"
 				},
 				{
 					"backtrace" : 62,
@@ -679,7 +687,7 @@
 				8,
 				11,
 				14,
-				23
+				26
 			]
 		}
 	],
@@ -699,7 +707,7 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O1 /Ob1 /DNDEBUG",
+				"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG",
 				"role" : "flags"
 			},
 			{
@@ -717,7 +725,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\debug\\lib\\vsgXchanged.lib\"",
+				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\lib\\vsgXchange.lib\"",
 				"role" : "libraries"
 			},
 			{
@@ -727,7 +735,12 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "..\\..\\lib\\MinSizeRel\\vsgQts.lib",
+				"fragment" : "..\\..\\lib\\Release\\vsgQt.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\lib\\imgui.lib\"",
 				"role" : "libraries"
 			},
 			{
@@ -751,33 +764,33 @@
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 20,
+				"backtrace" : 2,
 				"fragment" : "C:\\Qt\\6.10.1\\mingw_64\\lib\\libQt6Network.a",
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 30,
+				"backtrace" : 27,
 				"fragment" : "ws2_32.lib",
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 20,
+				"backtrace" : 30,
 				"fragment" : "shell32.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 35,
-				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\debug\\lib\\glm.lib\"",
+				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\lib\\glm.lib\"",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 35,
-				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\debug\\lib\\spdlogd.lib\"",
+				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\lib\\spdlog.lib\"",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 42,
-				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\debug\\lib\\fmtd.lib\"",
+				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\lib\\fmt.lib\"",
 				"role" : "libraries"
 			},
 			{
@@ -827,7 +840,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\debug\\lib\\vsgd.lib\"",
+				"fragment" : "\"C:\\Users\\cfh12\\Desktop\\rocky_qt\\rocky-main (1)\\build\\vcpkg_installed\\x64-windows\\lib\\vsg.lib\"",
 				"role" : "libraries"
 			},
 			{
@@ -866,6 +879,10 @@
 		},
 		{
 			"backtrace" : 2,
+			"id" : "Qt6::Network::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 2,
 			"id" : "vsg::vsg::@6890427a1f51a3e7e1df"
 		},
 		{
@@ -879,6 +896,10 @@
 		{
 			"backtrace" : 2,
 			"id" : "vsgQt::@6d4b21210806863a0e24"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "imgui::imgui::@62eebd0ffc708f9bd172"
 		}
 	],
 	"name" : "vsgqtviewer",
@@ -886,11 +907,11 @@
 	"orderDependencies" : 
 	[
 		{
-			"backtrace" : 0,
-			"id" : "Qt6::moc::@6890427a1f51a3e7e1df"
+			"id" : "Qt6::rcc::@6890427a1f51a3e7e1df"
 		},
 		{
-			"id" : "Qt6::rcc::@6890427a1f51a3e7e1df"
+			"backtrace" : 0,
+			"id" : "Qt6::moc::@6890427a1f51a3e7e1df"
 		},
 		{
 			"backtrace" : 0,
@@ -916,7 +937,7 @@
 				8,
 				11,
 				14,
-				23
+				26
 			]
 		},
 		{
@@ -931,32 +952,35 @@
 				12,
 				13,
 				15,
-				16
+				16,
+				17
 			]
 		},
 		{
 			"name" : "QML Files",
 			"sourceIndexes" : 
 			[
-				17,
 				18,
 				19,
 				20,
-				21
+				21,
+				22,
+				23,
+				24
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				22
+				25
 			]
 		},
 		{
 			"name" : "CMake Rules",
 			"sourceIndexes" : 
 			[
-				24
+				27
 			]
 		}
 	],
@@ -966,7 +990,7 @@
 			"backtrace" : 0,
 			"compileGroupIndex" : 0,
 			"isGenerated" : true,
-			"path" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/vsgqtviewer_autogen/mocs_compilation_MinSizeRel.cpp",
+			"path" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/vsgqtviewer_autogen/mocs_compilation_Release.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -1053,6 +1077,11 @@
 		},
 		{
 			"backtrace" : 1,
+			"path" : "examples/vsgqtviewer/AcmiTelemetryForwarder.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
 			"path" : "examples/vsgqtviewer/StyleHelper.h",
 			"sourceGroupIndex" : 1
 		},
@@ -1083,6 +1112,16 @@
 		},
 		{
 			"backtrace" : 1,
+			"path" : "examples/vsgqtviewer/WinBtn.qml",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "examples/vsgqtviewer/WindowControls.qml",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
 			"path" : "examples/vsgqtviewer/resources.qrc",
 			"sourceGroupIndex" : 3
 		},
@@ -1090,7 +1129,7 @@
 			"backtrace" : 0,
 			"compileGroupIndex" : 0,
 			"isGenerated" : true,
-			"path" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/vsgqtviewer_autogen/EWIEGA46WW_MinSizeRel/qrc_resources.cpp",
+			"path" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/vsgqtviewer_autogen/EWIEGA46WW_Release/qrc_resources.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

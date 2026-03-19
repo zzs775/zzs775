@@ -28,13 +28,13 @@
 			"id" : "vsgqtwindows::@2bb2f9fbafbeeea1a5e3"
 		},
 		{
-			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
+			"id" : "vsgqtmdi::@64abb28f357335c21346"
 		},
 		{
 			"id" : "vsgqtviewer::@62eebd0ffc708f9bd172"
 		},
 		{
-			"id" : "vsgqtmdi::@64abb28f357335c21346"
+			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
 		}
 	],
 	"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
@@ -49,10 +49,10 @@
 			"id" : "vsgqtwindows::@2bb2f9fbafbeeea1a5e3"
 		},
 		{
-			"id" : "vsgqtviewer::@62eebd0ffc708f9bd172"
+			"id" : "vsgqtmdi::@64abb28f357335c21346"
 		},
 		{
-			"id" : "vsgqtmdi::@64abb28f357335c21346"
+			"id" : "vsgqtviewer::@62eebd0ffc708f9bd172"
 		}
 	],
 	"paths" : 

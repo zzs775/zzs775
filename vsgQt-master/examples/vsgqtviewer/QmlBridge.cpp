@@ -2,6 +2,10 @@
 #include "SimClock.h"
 #include <QCursor>
 #include <QDebug>
+#include <QProcess>
+#include <QCoreApplication>
+#include <QFile>
+#include "AcmiTelemetryForwarder.h"
 
 extern AppState g_appState;
 
@@ -50,6 +54,63 @@ void QmlBridge::untether()
     emit focusEntityRequested(""); // 发送空字符串表示取消锁定
 }
 
+void QmlBridge::showTelemetry(const QString& id)
+{
+    qDebug() << ">>> [C++] 显示遥测数据:" << id;
+
+    // ★ 设置当前正在观测的实体 ID（QML 用于高亮数据按钮）
+    m_activeDataEntityId = id;
+    emit activeDataEntityIdChanged();
+
+    // ★ 【关键修复】无论进程是否已在运行，都必须先切换激活实体
+    // setActiveEntity 内部会发送 {"Type":"init"} 包触发遥测端重置数据
+    if (m_telemetryForwarder)
+    {
+        m_telemetryForwarder->setActiveEntity(id);
+        qDebug() << ">>> [C++] 已切换遥测激活实体并发送 reset 包:" << id;
+    }
+
+    // ★ 检查进程是否已在运行 —— 只有不在运行时才需要启动
+    if (m_telemetryProcess && m_telemetryProcess->state() == QProcess::Running)
+    {
+        qDebug() << ">>> 遥测程序已在运行，跳过重新启动（reset 包已发送）";
+        return;
+    }
+
+    // 创建新进程（如果之前的已结束）
+    if (!m_telemetryProcess)
+    {
+        m_telemetryProcess = new QProcess(this);
+    }
+
+    // 优先使用发行版路径，回退到开发路径
+    QString telemetryExe = "C:/Users/cfh12/Desktop/remote/appchart_merged.exe";
+    if (!QFile::exists(telemetryExe))
+    {
+        telemetryExe = "C:/Users/cfh12/Desktop/work/Signal-level-simulation/code/remote-telemetry-display/build_release/Release/appchart_merged.exe";
+    }
+
+    if (QFile::exists(telemetryExe))
+    {
+        qDebug() << ">>> 启动外部遥测程序:" << telemetryExe;
+        
+        // 【关键修复】：防父进程“环境变量投毒”！
+        // 主程序 vsgQt 在 main() 里全局强行设了 qputenv("QT_QUICK_BACKEND", "software");
+        // 这会导致被它拉起的子进程也用软件渲染，Chromium 的核心硬加速(WebGL)因为没有真实GPU通道而当场暴毙！
+        // 所以我们必须把系统的正常环境变量克隆一份，把 QT_QUICK_BACKEND 删掉，再给子进程用。
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        env.remove("QT_QUICK_BACKEND");
+        env.remove("QT_QUICK_CONTROLS_STYLE"); // 阻止按钮退化为 Basic 纯平样式
+        m_telemetryProcess->setProcessEnvironment(env);
+
+        m_telemetryProcess->start(telemetryExe, QStringList());
+    }
+    else
+    {
+        qWarning() << ">>> 遥测程序不存在:" << telemetryExe;
+    }
+}
+
 void QmlBridge::cancelPlacement()
 {
     g_appState.isPlacingMode = false;
@@ -84,6 +145,13 @@ void QmlBridge::closeWindow()
 {
     if (m_window) {
         m_window->close();
+    }
+}
+
+void QmlBridge::startWindowDrag()
+{
+    if (m_window) {
+        m_window->startSystemMove();
     }
 }
 

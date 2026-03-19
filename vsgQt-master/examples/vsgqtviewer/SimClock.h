@@ -17,6 +17,10 @@ public:
     void setMultiplier(double mult);
     void stop();
 
+    // 【固定步长】渲染循环每帧主动调用此方法推进仿真时间
+    // dt 为固定步长（秒），例如 0.008 表示 8ms
+    void tickFixed(double dt);
+
     Q_INVOKABLE void seekToProgress(double p);
     Q_INVOKABLE QString timeStringAt(double p) const;
     void syncToDataTime(double dataTimestamp);

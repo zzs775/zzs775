@@ -423,11 +423,12 @@ void SimDataManager::parseAcmiLine(const std::string& lineStr)
         // 如果有上一帧数据，将其快照存入缓冲区，用于后续的平滑插值计算
         if (m_currentParseTime >= 0.0 && !m_latestDataMap.empty())
         {
-            // 动态阈值 = 当前帧间隔 * 3，最小保底 1.0 秒，防止因解析抖动导致的频闪
-            double frameInterval = newTime - m_currentParseTime;
-            double staleThreshold = std::max(frameInterval * 3.0, 1.0);
+            // [恢复失联清理]
+            // 为了防止没有发显式 '-ID' 删除指令的模型（如某些导弹命中后直接不发数据）永远卡在天空中，
+            // 必须进行超时清理。但是阈值不能太短，ACMI 匀速直线时可能有几秒不发更新。
+            // 这里设置为 10.0 秒。如果 10 秒钟内都没有任何更新且没发 '-ID'，我们认为它死了。
+            double staleThreshold = 10.0;
 
-            // 清理失联实体
             for (auto it = m_latestDataMap.begin(); it != m_latestDataMap.end();)
             {
                 auto uit = m_entityLastUpdateTime.find(it->first);
@@ -435,12 +436,15 @@ void SimDataManager::parseAcmiLine(const std::string& lineStr)
                 {
                     it = m_latestDataMap.erase(it);
                 }
-                else ++it;
+                else
+                {
+                    ++it;
+                }
             }
 
             AcmiFrame frame;
             frame.time = m_currentParseTime;
-            frame.entities = m_latestDataMap; // 拷贝清理后当前秒内所有实体的全量快照
+            frame.entities = m_latestDataMap;
             m_acmiFrames.push_back(std::move(frame));
         }
 
@@ -642,10 +646,26 @@ std::unordered_map<std::string, UdpDataPacket> SimDataManager::getDataAtTime(dou
 
     if (it == m_acmiFrames.begin())
     {
-        return m_acmiFrames.front().entities; // timeSec 在最早帧之前，返回第一帧
+        auto entities = m_acmiFrames.front().entities;
+        for (auto eit = entities.begin(); eit != entities.end();)
+        {
+            if (m_excludedIds.count(eit->first))
+                eit = entities.erase(eit);
+            else
+                ++eit;
+        }
+        return entities;
     }
     --it;
-    return it->entities;
+    auto entities = it->entities;
+    for (auto eit = entities.begin(); eit != entities.end();)
+    {
+        if (m_excludedIds.count(eit->first))
+            eit = entities.erase(eit);
+        else
+            ++eit;
+    }
+    return entities;
 }
 
 // 【仿真核心接口：插值点计算】
@@ -683,6 +703,30 @@ std::vector<InterpolatedPacket> SimDataManager::getInterpolatedData(double timeS
     const AcmiFrame& f0 = *it0;
     const AcmiFrame& f1 = *it1;
 
+    // === 【新增】：插值帧数探测日志 ===
+    static double s_last_f0_time = -1.0;
+    static double s_last_f1_time = -1.0;
+    static int s_interp_count = 0;
+
+    // 如果 f0 有变化，意味着引擎已经“跨越”了那道数据缝隙，进入了下一个数据的区间。此时结算上一个区间。
+    if (std::abs(f0.time - s_last_f0_time) > 1e-5)
+    {
+        if (s_last_f0_time >= 0.0) 
+        {
+            qDebug() << "=======================================";
+            qDebug() << "[插值统计] 突破数据缝隙结算！";
+            qDebug() << "  ACMI真实数据区间 : [ t=" << QString::number(s_last_f0_time, 'f', 2) << "s -> t=" << QString::number(s_last_f1_time, 'f', 2) << "s ]";
+            qDebug() << "  该段真实数据时长 : " << QString::number(s_last_f1_time - s_last_f0_time, 'f', 3) << "秒";
+            qDebug() << "  ▶▶ 引擎在这里面硬生生为你插了【" << s_interp_count << "】帧平滑补间画面！◀◀";
+            qDebug() << "=======================================";
+        }
+        s_last_f0_time = f0.time;
+        s_last_f1_time = f1.time;
+        s_interp_count = 0;
+    }
+    s_interp_count++;
+    // ==================================
+
     // 计算插值系数 alpha (0.0 ~ 1.0)
     double denominator = f1.time - f0.time;
     double alpha = (denominator > 1e-6) ? (timeSec - f0.time) / denominator : 0.0;
@@ -690,6 +734,8 @@ std::vector<InterpolatedPacket> SimDataManager::getInterpolatedData(double timeS
     // 遍历前一帧的所有实体，如果后一帧也有，则插值；否则保持前一帧
     for (const auto& [id, p0] : f0.entities)
     {
+        if (m_excludedIds.count(id)) continue;
+
         auto it_f1 = f1.entities.find(id);
         if (it_f1 != f1.entities.end())
         {

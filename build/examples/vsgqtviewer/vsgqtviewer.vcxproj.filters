@@ -72,6 +72,9 @@
     <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\AcmiUdpReceiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\AcmiTelemetryForwarder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\StyleHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -96,6 +99,12 @@
       <Filter>QML Files</Filter>
     </None>
     <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\TimelineBar.qml">
+      <Filter>QML Files</Filter>
+    </None>
+    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\WinBtn.qml">
+      <Filter>QML Files</Filter>
+    </None>
+    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\WindowControls.qml">
       <Filter>QML Files</Filter>
     </None>
     <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\resources.qrc" />

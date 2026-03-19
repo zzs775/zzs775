@@ -13,12 +13,15 @@
 #include <chrono>
 #include <cmath>
 
+#include "AcmiTelemetryForwarder.h"
 #include <algorithm>
 #include <optional>
+#include <rocky/DateTime.h>
 #include <rocky/GeoPoint.h>
 #include <rocky/TMSImageLayer.h>
 #include <rocky/vsg/MapManipulator.h>
 #include <rocky/vsg/MapNode.h>
+#include <rocky/vsg/SkyNode.h>
 #include <rocky/vsg/VSGContext.h>
 #include <rocky/vsg/terrain/TerrainNode.h>
 #include <unordered_map>
@@ -63,12 +66,55 @@ vsg::dvec3 worldToLatLonAlt(const vsg::dvec3& p)
     return vsg::dvec3(lat * 180.0 / PI, lon * 180.0 / PI, alt);
 }
 
+// 获取真实模型的物理尺寸（米）, 咱们的 VSG 的 targetSize 对应 AABB 最大的长边
+double getRealisticModelSize(const std::string& name)
+{
+    std::string n = name;
+    std::transform(n.begin(), n.end(), n.begin(), ::tolower);
+    if (n.find("su-27") != std::string::npos || n.find("su27") != std::string::npos) return 21.9;
+    if (n.find("f-16") != std::string::npos || n.find("f16") != std::string::npos) return 15.1;
+    if (n.find("r-27") != std::string::npos || n.find("r27") != std::string::npos) return 4.1;
+    if (n.find("aim-120") != std::string::npos || n.find("aim120") != std::string::npos) return 3.7;
+    if (n.find("aim-9") != std::string::npos || n.find("aim9") != std::string::npos) return 3.0;
+    // 有些旧代码可能只传递了 aim 这个字，默认分配为 AIM-120 处理
+    if (n.find("aim") != std::string::npos) return 3.7;
+    if (n.find("r-73") != std::string::npos || n.find("r73") != std::string::npos) return 2.9;
+    if (n.find("missile") != std::string::npos) return 3.7;
+    return 15.1; // 默认给个 F16 的大小，或者差不多的通用大小
+}
+
 // --- ECS 驱动的帧更新器 (Step 5) ---
 // 它是整个仿真的核心，每一帧都会被调用，负责根据最新数据更新所有飞机/导弹的位置和状态
+#include <rocky/vsg/imgui/ImGuiIntegration.h>
+
 class SimulationUpdateHandler : public vsg::Inherit<vsg::Visitor, SimulationUpdateHandler>
 {
 public:
-    SimulationUpdateHandler(SimDataManager* dm, SimClock* clk = nullptr, vsg::ref_ptr<vsg::Group> entitiesRoot = nullptr, rocky::VSGContext context = {}) : dataManager(dm), simClock(clk), _entitiesRoot(entitiesRoot), rockyContext(context) {}
+    // 实体追踪状态（用于平滑与显隐控制）
+    struct EntityState
+    {
+        // 平滑坐标（渲染侧 EMA，用于消除时钟抖动和帧间卡顿）
+        double smoothLon = 0.0;
+        double smoothLat = 0.0;
+        double smoothAlt = 0.0;
+        // 平滑姿态（±180° 最短路径 EMA）
+        double smoothYaw = 0.0;
+        double smoothPitch = 0.0;
+        double smoothRoll = 0.0;
+        bool hasSmoothPos = false; // 首帧直接赋值，避免从 (0,0,0) 追过来
+
+        // 显示状态控制
+        bool isVisible = true;
+        vsg::ref_ptr<vsg::MatrixTransform> transformNode;
+        vsg::ref_ptr<TrackNode> trackNode; // 航迹线节点
+
+        double lastDataReceivedTime = -1.0;
+        bool isFadingOut = false;
+    };
+
+    std::unordered_map<std::string, EntityState> _entityStates;
+
+    SimulationUpdateHandler(SimDataManager* dm, SimClock* clk = nullptr, vsg::ref_ptr<vsg::Group> entitiesRoot = nullptr, rocky::VSGContext context = {}, class AcmiTelemetryForwarder* fwd = nullptr) : dataManager(dm), simClock(clk), _entitiesRoot(entitiesRoot), rockyContext(context), forwarder(fwd) {}
 
     // 核心函数：每一帧渲染前执行，处理所有逻辑更新
     void apply(vsg::FrameEvent& frame) override
@@ -77,36 +123,13 @@ public:
 
         if (!dataManager || !_entitiesRoot) return;
 
-        // 实体追踪状态（用于平滑与显隐控制）
-        struct EntityState
-        {
-            // 平滑坐标（渲染侧 EMA，用于消除时钟抖动和帧间卡顿）
-            double smoothLon = 0.0;
-            double smoothLat = 0.0;
-            double smoothAlt = 0.0;
-            // 平滑姿态（±180° 最短路径 EMA）
-            double smoothYaw = 0.0;
-            double smoothPitch = 0.0;
-            double smoothRoll = 0.0;
-            bool hasSmoothPos = false; // 首帧直接赋值，避免从 (0,0,0) 追过来
-
-            // 显示状态控制
-            bool isVisible = true;
-            vsg::ref_ptr<vsg::MatrixTransform> transformNode;
-            vsg::ref_ptr<TrackNode> trackNode; // 航迹线节点
-
-            double lastDataReceivedTime = -1.0;
-            bool isFadingOut = false;
-        };
-
-        static std::unordered_map<std::string, EntityState> _entityStates;
-
         // (播放速度暂不参与 EMA 计算，统一用固定 smoothingK)
 
         // 【第一阶段：数据获取】
         std::vector<InterpolatedPacket> latestData;
 
-        if (dataManager->acmiPacketCount() > 0 && simClock)
+        bool isPlayback = (dataManager->acmiPacketCount() > 0 && simClock);
+        if (isPlayback)
         {
             // [回放模式] 计算当前仿真绝对时间 = 进度时间 + 文件的起始绝对时间
             double absoluteTime = simClock->currentSeconds() + dataManager->acmiTimeMin();
@@ -149,9 +172,10 @@ public:
                 state.lastDataReceivedTime = currentTime;
                 state.isFadingOut = false;
             }
-            else if (std::abs(currentTime - state.lastDataReceivedTime) > 2.0 && !state.isFadingOut)
+            else if (std::abs(currentTime - state.lastDataReceivedTime) > 15.0 && !state.isFadingOut)
             {
-                // 超时2秒没有数据，标记完全淡出并移除
+                // 超时15秒没有数据，标记完全淡出并移除
+                // 注意：ACMI 匀速直线飞行时可能多秒不发更新，改为 15s 防止误删
                 state.isFadingOut = true;
                 inSnapshot = false;
             }
@@ -163,6 +187,10 @@ public:
                 if (!inSnapshot)
                 {
                     ch.erase(std::remove(ch.begin(), ch.end(), vsg::ref_ptr<vsg::Node>(state.transformNode)), ch.end());
+                    if (state.trackNode)
+                    {
+                        ch.erase(std::remove(ch.begin(), ch.end(), vsg::ref_ptr<vsg::Node>(state.trackNode)), ch.end());
+                    }
                     dataManager->removeEntity(QString::fromStdString(id), false); // 自动超时不拉黑
                     _needsCompile = true;
                 }
@@ -202,17 +230,11 @@ public:
             {
                 std::string modelFile = inferModelFile(name);
 
-                double modelScale = 10000.0;
-                std::string n = name;
-                std::transform(n.begin(), n.end(), n.begin(), ::tolower);
-                if (n.find("aim") != std::string::npos || n.find("missile") != std::string::npos)
-                {
-                    modelScale = 5000.0;
-                }
+                double modelScale = getRealisticModelSize(name);
 
                 auto modelNode = ModelFactory::instance()->createVisualEntity(
                     modelFile,
-                    QString::fromStdString(name),
+                    QString::fromStdString(id), // 需求：将标签内容改为模型 ID
                     modelScale,
                     packet.color);
 
@@ -252,9 +274,10 @@ public:
                 return cur + a * diff;
             };
 
-            if (!state.hasSmoothPos)
+            // ★ 如果是在回放模式（已经有完美的精确 Lerp 结果），直接赋予坐标，绝不能再盖一次 EMA，否则会引发“弹簧追赶效应”导致高速剧烈抖动
+            if (!state.hasSmoothPos || isPlayback)
             {
-                // 首帧直接赋值，避免从 (0,0,0) 慢慢追过来
+                // 100% 信任最新坐标
                 state.smoothLon = packet.lon;
                 state.smoothLat = packet.lat;
                 state.smoothAlt = packet.alt;
@@ -265,6 +288,7 @@ public:
             }
             else
             {
+                // 只有直播 UDP 模式，因为不存在未来帧，才使用 EMA 弹性逼近
                 // 位置平滑（经纬高均为线性量，直接 EMA）
                 state.smoothLon += renderAlpha * (packet.lon - state.smoothLon);
                 state.smoothLat += renderAlpha * (packet.lat - state.smoothLat);
@@ -332,6 +356,13 @@ public:
                     QString::fromStdString(id), QString::fromStdString(name),
                     mType, state.smoothLat, state.smoothLon, state.smoothAlt);
             }
+
+            // 5. [遥测数据转发]
+            if (forwarder)
+            {
+                // 使用仿真当前秒数，确保暂停同步
+                forwarder->forward(QString::fromStdString(id), currentTime, state.smoothLat, state.smoothLon, state.smoothAlt, state.smoothYaw, state.smoothPitch, state.smoothRoll);
+            }
         }
     }
 
@@ -339,6 +370,7 @@ public:
     SimClock* simClock = nullptr;
     vsg::ref_ptr<vsg::Group> _entitiesRoot = nullptr;
     rocky::VSGContext rockyContext;
+    class AcmiTelemetryForwarder* forwarder = nullptr;
 
     bool needsCompile() const
     {
@@ -609,6 +641,7 @@ public:
     void removeEntityNode(const QString& id)
     {
         _pendingRemovals.append(id);
+        _needsCompile = true;
         qDebug() << ">>> 模型删除请求已加入队列, ID:" << id;
     }
 
@@ -617,6 +650,7 @@ public:
     {
         _entities->children.clear();
         _pendingRemovals.clear();
+        _placedNodes.clear();
         _needsCompile = true;
         qDebug() << ">>> 已清空所有场景模型";
     }
@@ -625,15 +659,9 @@ public:
     {
         for (const auto& placement : _pendingPlacements)
         {
-            double modelSize = 10000.0;
-            std::string n = placement.name.toStdString();
-            std::transform(n.begin(), n.end(), n.begin(), ::tolower);
-            if (n.find("aim") != std::string::npos || n.find("r27") != std::string::npos || n.find("r73") != std::string::npos || n.find("missile") != std::string::npos)
-            {
-                modelSize = 5000.0; // 导弹比飞机小一倍
-            }
+            double modelSize = getRealisticModelSize(placement.name.toStdString());
             auto factory = ModelFactory::instance();
-            auto visual = factory->createVisualEntity(placement.modelFile, placement.name, modelSize);
+            auto visual = factory->createVisualEntity(placement.modelFile, placement.entityId, modelSize);
             if (!visual)
             {
                 qWarning() << ">>> 模型加载失败，使用默认方块";
@@ -657,6 +685,7 @@ public:
 
             transformNode->matrix = localToWorld * baseRot;
             _entities->addChild(transformNode);
+            _placedNodes[placement.entityId] = transformNode;
 
             qDebug() << ">>> 模型已添加到场景, ID:" << placement.entityId;
         }
@@ -665,10 +694,18 @@ public:
         // 处理待删除的节点
         for (const auto& id : _pendingRemovals)
         {
-            // This is a simplified removal. In a real app, you'd map entity IDs to VSG nodes.
-            // For now, we assume _entities is cleared by removeAllEntityNodes() or individual removal is not critical.
-            // A proper implementation would involve storing a map from entity ID to vsg::Node.
-            qDebug() << ">>> 尝试移除模型, ID:" << id << " (当前简化实现不直接支持按ID移除)";
+            auto it = _placedNodes.find(id);
+            if (it != _placedNodes.end())
+            {
+                auto& ch = _entities->children;
+                ch.erase(std::remove(ch.begin(), ch.end(), vsg::ref_ptr<vsg::Node>(it->second)), ch.end());
+                _placedNodes.erase(it);
+                qDebug() << ">>> 已移除手动放置的模型, ID:" << id;
+            }
+            else
+            {
+                qDebug() << ">>> 未找到手动放置的模型节点, ID:" << id << "(可能由 SimulationUpdateHandler 管理)";
+            }
             _needsCompile = true;
         }
         _pendingRemovals.clear();
@@ -685,6 +722,7 @@ private:
     uint32_t _windowWidth = 1920;
     uint32_t _windowHeight = 1080;
     bool _needsCompile = false;
+    std::map<QString, vsg::ref_ptr<vsg::MatrixTransform>> _placedNodes; // 追踪手动放置的模型节点
 
     std::chrono::steady_clock::time_point _lastClickTime = std::chrono::steady_clock::now();
     uint32_t _lastClickButton = 0;
@@ -882,6 +920,147 @@ private:
     }
 };
 
+// 创建 ImGui Context Node 来绘制悬浮标签
+class TagsImGuiNode : public vsg::Inherit<rocky::ImGuiContextNode, TagsImGuiNode>
+{
+public:
+    vsg::ref_ptr<vsg::Camera> camera;
+    vsg::ref_ptr<SimulationUpdateHandler> updater;
+
+    TagsImGuiNode() = default;
+
+    void render(ImGuiContext* context) const override
+    {
+        if (context) ImGui::SetCurrentContext(context);
+
+        // 每帧从相机实时获取视图矩阵和投影矩阵（随拖动实时更新）
+        vsg::dmat4 viewMat = camera->viewMatrix->transform();
+        vsg::dmat4 projMat = camera->projectionMatrix->transform();
+        vsg::dmat4 vp = projMat * viewMat;
+
+        // 从视图矩阵逆矩阵提取相机的世界坐标（用于地球遮挡检测）
+        vsg::dmat4 invView = vsg::inverse(viewMat);
+        vsg::dvec3 camWorld(invView[3][0], invView[3][1], invView[3][2]);
+
+        ImGuiIO& io = ImGui::GetIO();
+        double w = io.DisplaySize.x;
+        double h = io.DisplaySize.y;
+        if (w <= 0.0 || h <= 0.0) {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+            ImGui::PopStyleVar();
+            return;
+        }
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(io.DisplaySize);
+        ImGui::SetNextWindowBgAlpha(0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGuiWindowFlags flags =
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoInputs |
+            ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings |
+            ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+
+        if (ImGui::Begin("TagsOverlay", nullptr, flags))
+        {
+            auto* drawList = ImGui::GetWindowDrawList();
+            rocky::SRSOperation toEcef = rocky::SRS::WGS84.to(rocky::SRS::ECEF);
+            // WGS84 赤道半径（米），用于地球遮挡球体检测（略小一点防止自遮挡）
+            const double R = 6371000.0;
+
+            for (auto& pair : updater->_entityStates)
+            {
+                const auto& state = pair.second;
+                if (!state.isVisible || (state.smoothLat == 0.0 && state.smoothLon == 0.0))
+                    continue;
+
+                // === 1. WGS84 (lon, lat, alt) → ECEF 三维坐标 ===
+                vsg::dvec3 lonLatAlt(state.smoothLon, state.smoothLat, state.smoothAlt);
+                vsg::dvec3 ecef;
+                toEcef(lonLatAlt, ecef);
+
+                // === 2. 地球球体遮挡深度测试 ===
+                // 从相机到模型的射线，与地球球体求交
+                // 若交点在相机与模型之间，说明地球挡住了模型 → 隐藏标签
+                vsg::dvec3 toModel = ecef - camWorld;
+                double distToModel = vsg::length(toModel);
+                if (distToModel < 1.0) continue;
+                vsg::dvec3 rayDir = toModel / distToModel;
+
+                double b    = 2.0 * vsg::dot(camWorld, rayDir);
+                double cval = vsg::dot(camWorld, camWorld) - R * R;
+                double disc = b * b - 4.0 * cval;
+                if (disc > 0.0) {
+                    double sq = std::sqrt(disc);
+                    double t1 = (-b - sq) * 0.5;
+                    double t2 = (-b + sq) * 0.5;
+                    // 交点在 [ε, distToModel) 范围内 → 被地球遮挡
+                    if ((t1 > 100.0 && t1 < distToModel - 100.0) ||
+                        (t2 > 100.0 && t2 < distToModel - 100.0))
+                        continue;
+                }
+
+                // === 3. 三维坐标 → 裁剪坐标 → NDC ===
+                vsg::dvec4 clip = vp * vsg::dvec4(ecef.x, ecef.y, ecef.z, 1.0);
+                if (clip.w <= 0.0) continue; // 在摄像机背面
+
+                vsg::dvec3 ndc(clip.x / clip.w, clip.y / clip.w, clip.z / clip.w);
+
+                // 屏幕范围剔除
+                if (ndc.x < -1.0 || ndc.x > 1.0 ||
+                    ndc.y < -1.0 || ndc.y > 1.0) continue;
+                // Vulkan 深度范围 [0, 1] 剔除
+                if (ndc.z < 0.0 || ndc.z > 1.0) continue;
+
+                // === 4. NDC → 屏幕像素坐标 ===
+                // 【关键修复】VSG 使用 Vulkan NDC 约定：Y 轴向下
+                //   ndc.y = -1 → 屏幕顶部(y=0)
+                //   ndc.y = +1 → 屏幕底部(y=h)
+                // 正确公式：yScreen = (ndc.y + 1) * 0.5 * h
+                // 旧公式 (1 - ndc.y) 是 OpenGL 约定，在 Vulkan 下 Y 轴完全翻转，
+                // 导致标签出现在模型实际位置的镜像位置，拖动时明显漂移！
+                double xScreen = (ndc.x + 1.0) * 0.5 * w;
+                double yScreen = (ndc.y + 1.0) * 0.5 * h;
+
+                // === 5. 绘制标签（始终在模型投影点正上方） ===
+                const std::string& label = pair.first;
+                ImVec2 textSize = ImGui::CalcTextSize(label.c_str());
+                const float kOffY = 52.0f;  // 标签底部距模型投影点的像素距离
+                const float kPadX = 6.0f;
+                const float kPadY = 4.0f;
+
+                // 标签左上角：水平居中于投影点，垂直位于投影点上方 kOffY 像素
+                ImVec2 textPos(
+                    (float)xScreen - textSize.x * 0.5f,
+                    (float)yScreen - textSize.y - kOffY
+                );
+                if (textPos.y < kPadY) textPos.y = kPadY; // 防止超出屏幕顶部
+
+                ImVec2 boxMin(textPos.x - kPadX, textPos.y - kPadY);
+                ImVec2 boxMax(textPos.x + textSize.x + kPadX, textPos.y + textSize.y + kPadY);
+                // 指示线的锚点：标签框底部中心
+                ImVec2 boxAnchor((boxMin.x + boxMax.x) * 0.5f, boxMax.y);
+                // 模型在屏幕上的投影点
+                ImVec2 modelPt((float)xScreen, (float)yScreen);
+
+                // 背景（深蓝半透明）
+                drawList->AddRectFilled(boxMin, boxMax, IM_COL32(4, 22, 80, 215), 5.0f);
+                // 边框（青色发光效果）
+                drawList->AddRect(boxMin, boxMax, IM_COL32(0, 210, 255, 240), 5.0f, 0, 1.8f);
+                // 文字（白色）
+                drawList->AddText(textPos, IM_COL32(230, 245, 255, 255), label.c_str());
+                // 指示线：标签框底部中心 → 模型投影锚点
+                drawList->AddLine(boxAnchor, modelPt, IM_COL32(0, 210, 255, 170), 1.6f);
+                // 模型投影点：实心圆 + 外圈
+                drawList->AddCircleFilled(modelPt, 3.5f, IM_COL32(0, 220, 255, 255));
+                drawList->AddCircle(modelPt, 6.5f, IM_COL32(0, 220, 255, 100), 0, 1.2f);
+            }
+        }
+        ImGui::End();
+        ImGui::PopStyleVar();
+    }
+};
+
 int main(int argc, char* argv[])
 {
     qputenv("QT_QUICK_BACKEND", "software");
@@ -891,6 +1070,9 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
     QString binDir = QCoreApplication::applicationDirPath();
     qputenv("VSG_FILE_PATH", binDir.toLocal8Bit());
+
+    // 强制开启动态大气层（通过 SkyNode）
+    bool useSky = true;
 
     // 动态解析 ROCKY_FILE_PATH
     // Rocky 需要 ROCKY_FILE_PATH 直接指向包含 shaders 的目录，即 install/share/rocky
@@ -920,7 +1102,14 @@ int main(int argc, char* argv[])
     vsgOptions->paths.push_back((binDir + "/fonts").toStdString());
     ModelFactory::instance()->init(vsgOptions);
 
+    // 搜索路径包含 Rocky 资源
+    vsgOptions->paths.push_back(rockySharePath.toStdString());
+
     auto rockyContext = rocky::VSGContextFactory::create(viewer);
+    rockyContext->readerWriterOptions = vsgOptions;
+    rockyContext->searchPaths.push_back(rockySharePath.toStdString());
+    rockyContext->searchPaths.push_back(binDir.toStdString());
+
     auto mapNode = rocky::MapNode::create(rockyContext);
 
     if (mapNode->map)
@@ -932,15 +1121,42 @@ int main(int argc, char* argv[])
 
     auto entities = vsg::Group::create();
     auto scene = vsg::Group::create();
+
+    vsg::ref_ptr<rocky::SkyNode> skyNode;
+    if (useSky)
+    {
+        skyNode = rocky::SkyNode::create(rockyContext);
+        skyNode->setWorldSRS(rocky::SRS::ECEF); // ★ 必须用 ECEF，不能用 WGS84
+        skyNode->setShowAtmosphere(true);
+
+        scene->addChild(skyNode);
+
+        // ★ 调整光照强度，防止模型变黑
+        if (skyNode->ambient)
+        {
+            skyNode->ambient->color = vsg::vec3(0.5f, 0.5f, 0.5f); // 提升环境光
+            skyNode->ambient->intensity = 1.2f;
+        }
+        if (skyNode->sun)
+        {
+            skyNode->sun->color = vsg::vec3(1.0f, 1.0f, 1.0f);
+            skyNode->sun->intensity = 3.5f;
+        }
+    }
+    else
+    {
+        scene->addChild(vsg::createHeadlight());
+
+        auto fixedLight = vsg::DirectionalLight::create();
+        fixedLight->direction = vsg::normalize(vsg::dvec3(0.2, 0.5, -1.0));
+        fixedLight->color = vsg::vec3(1.0f, 1.0f, 1.0f);
+        fixedLight->intensity = 2.8f;
+        scene->addChild(fixedLight);
+    }
+
+    // 1. 基础节点（后渲染/或保持相对顺序）
     scene->addChild(mapNode);
     scene->addChild(entities);
-    scene->addChild(vsg::createHeadlight());
-
-    auto fixedLight = vsg::DirectionalLight::create();
-    fixedLight->direction = vsg::normalize(vsg::dvec3(0.2, 0.5, -1.0));
-    fixedLight->color = vsg::vec3(1.0f, 1.0f, 1.0f);
-    fixedLight->intensity = 2.8f;
-    scene->addChild(fixedLight);
 
     auto traits = vsg::WindowTraits::create();
     traits->width = 1600;
@@ -986,16 +1202,27 @@ int main(int argc, char* argv[])
     SimDataManager* dataManager = new SimDataManager(&app);
     dataManager->startUdpReceiver(19999); // 启动二进制 UDP 接收器
 
-    // ★ 初始化 ECS 全局实体管理器 (Step 3) - Old code removed
-
-    // ★ 创建帧级更新器 (Step 5)
-    auto simUpdateHandler = SimulationUpdateHandler::create(dataManager, nullptr, entities, rockyContext);
-
-    // ECS 初始化已移除（改用纯 VSG TrackNode，不需要 registry）
-
     ModelListModel* modelListModel = new ModelListModel(&app);
     QString modelDir = "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/3DModel";
     modelListModel->loadFromDirectory(modelDir);
+
+    auto* telemetryForwarder = new AcmiTelemetryForwarder(&app);
+    auto* clock = new SimClock(&app);
+    clock->setTimeRange(rocky::DateTime(2018, 9, 15, 12.0), rocky::DateTime(2018, 9, 16, 12.0));
+    clock->setAnimating(true);
+
+    if (skyNode)
+    {
+        skyNode->setDateTime(clock->currentDateTime());
+    }
+
+    auto simUpdateHandler = SimulationUpdateHandler::create(dataManager, nullptr, entities, rockyContext, telemetryForwarder);
+    simUpdateHandler->simClock = clock;
+
+    QmlBridge* bridge = new QmlBridge(&app);
+    bridge->setBackgroundWindow(vsgWindow);
+    bridge->setTelemetryForwarder(telemetryForwarder);
+    bridge->setSimClock(clock);
     qDebug() << "=== 模型目录加载完成，共" << modelListModel->rowCount() << "个模型";
 
     auto mapManipulator = rocky::MapManipulator::create(mapNode, vsgWindow->windowAdapter, camera, rockyContext);
@@ -1007,7 +1234,20 @@ int main(int argc, char* argv[])
 
     // 连接已移至后面 bridge 实例化之后
 
-    auto commandGraph = vsg::createCommandGraphForView(*vsgWindow, camera, scene);
+    // === 【新增】：注册 ImGui 浮空标签管线 ===
+    auto renderImGui = rocky::RenderImGuiContext::create(vsgWindow->windowAdapter, nullptr);
+    auto tagsNode = TagsImGuiNode::create();
+    tagsNode->camera = camera;
+    tagsNode->updater = simUpdateHandler;
+    renderImGui->add(tagsNode);
+    scene->addChild(renderImGui);
+    
+    // 把 ImGui 事件监听加入 viewer (处理屏幕分辨率自适应)
+    auto imGuiEvents = rocky::SendEventsToImGuiContext::create(vsgWindow->windowAdapter, nullptr);
+    viewer->addEventHandler(imGuiEvents);
+    // ===================================
+
+    auto commandGraph = vsg::createCommandGraphForView(*vsgWindow, camera, scene, VK_SUBPASS_CONTENTS_INLINE, false);
     if (!commandGraph->children.empty())
     {
         if (auto renderGraph = commandGraph->children[0].cast<vsg::RenderGraph>())
@@ -1032,24 +1272,13 @@ int main(int argc, char* argv[])
     QQuickView* qmlView = new QQuickView();
     qmlView->setFormat(qmlView->format());
     qmlView->setColor(Qt::transparent);
-    qmlView->setFlags(Qt::FramelessWindowHint | Qt::Window | Qt::NoDropShadowWindowHint); 
-    qmlView->setTransientParent(vsgWindow);                // 建立父子关系，主窗口关闭时联动
+    qmlView->setFlags(Qt::FramelessWindowHint | Qt::Window | Qt::NoDropShadowWindowHint);
+    qmlView->setTransientParent(vsgWindow); // 建立父子关系，主窗口关闭时联动
 
-    QmlBridge* bridge = new QmlBridge(&app);
-    bridge->setBackgroundWindow(vsgWindow);
     qmlView->rootContext()->setContextProperty("ControlBridge", bridge);
     qmlView->rootContext()->setContextProperty("simModel", dataManager);
     qmlView->rootContext()->setContextProperty("modelListModel", modelListModel);
     qmlView->setSource(QUrl::fromLocalFile(binDir + "/TechOverlay.qml"));
-
-    auto* clock = new SimClock(&app);
-    clock->setTimeRange(rocky::DateTime(2018, 9, 15, 0.0), rocky::DateTime(2018, 9, 16, 0.0));
-    bridge->setSimClock(clock);
-    // skyNode->setDateTime(...) 等以后加了 SkyNode 再接
-    clock->setAnimating(true);
-
-    // ★ 将 SimClock 传递给帧级更新器，用于 ACMI 缓冲回放时间控制
-    simUpdateHandler->simClock = clock;
 
     // 连接删除信号：面板删除模型时，同步移除场景中的3D节点
     QObject::connect(dataManager, &SimDataManager::entityRemoved, [editor, bridge, mapManipulator](const QString& id) {
@@ -1126,8 +1355,8 @@ int main(int argc, char* argv[])
             };
 
             // 设置相机的观察角度和距离
-            vp.range = rocky::Distance(5000.0, rocky::Units::METERS); // 初始距离 5km
-            vp.pitch = rocky::Angle(-30.0, rocky::Units::DEGREES);    // 俯视 30 度
+            vp.range = rocky::Distance(300.0, rocky::Units::METERS); // ★ 缩小初始追踪距离，距离 5km -> 300m
+            vp.pitch = rocky::Angle(-15.0, rocky::Units::DEGREES);    // 俯视 15 度，更平缓
             vp.heading = rocky::Angle(entity->yaw, rocky::Units::DEGREES);
 
             // 执行相机切换动画，时长 0.5 秒
@@ -1159,7 +1388,7 @@ int main(int argc, char* argv[])
     // 每一个仿真软件都有一个死循环，在这里是用 QTimer 模拟的
     QTimer* renderTimer = new QTimer();
     auto lastFrameTime = std::chrono::steady_clock::now();
-    QObject::connect(renderTimer, &QTimer::timeout, [vsgWindow, viewer, camera, scene, &app, editor, simUpdateHandler, mapManipulator, bridge, lastFrameTime, dataManager, clock, rockyContext]() mutable {
+    QObject::connect(renderTimer, &QTimer::timeout, [vsgWindow, viewer, camera, scene, &app, editor, simUpdateHandler, mapManipulator, bridge, lastFrameTime, dataManager, clock, rockyContext, skyNode]() mutable {
         if (!vsgWindow || !viewer || !vsgWindow->isExposed() || vsgWindow->width() <= 0 || vsgWindow->height() <= 0)
         {
             return;
@@ -1178,6 +1407,12 @@ int main(int argc, char* argv[])
                 // 处理窗口事件（按钮点击、相机拖拽等）
                 viewer->handleEvents();
 
+                // ★【固定步长时钟推进】每帧前进 8ms，与 renderTimer->start(8) 完美匹配
+                // 无论 GPU 是否卡顿，时间推进永远是均匀的 0.008 秒
+                // 0.2s 数据间隔 / 0.008s 步长 = 精确 25 帧插值，永不波动
+                constexpr double FIXED_DT = 0.008; // 8ms = 125 FPS
+                if (clock) clock->tickFixed(FIXED_DT);
+
                 // 2. 动态模型逻辑更新 (The Heart of Simulation)
                 // 在这里计算飞机的最新位置、插值、显隐切换
                 {
@@ -1193,6 +1428,11 @@ int main(int argc, char* argv[])
                         viewer->compile();
                         simUpdateHandler->clearCompileFlag();
                         editor->clearCompileFlag();
+                    }
+
+                    if (skyNode && clock)
+                    {
+                        skyNode->setDateTime(clock->currentDateTime());
                     }
                 }
 
@@ -1379,6 +1619,6 @@ int main(int argc, char* argv[])
         }
     });
 
-    renderTimer->start(16);
+    renderTimer->start(8); // 将渲染循环从 16ms (60FPS) 提升至 8ms (125FPS)，大幅度增加数据插帧采样密度
     return app.exec();
 }

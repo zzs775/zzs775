@@ -84,19 +84,21 @@ Rectangle {
                 anchors.bottom: parent.bottom
             }
 
-            // 拖动区域
+            // 拖动区域 (覆盖整个标题栏，但让子项优先)
             MouseArea {
                 id: dragArea
                 anchors.fill: parent
-                property point clickPos: Qt.point(0, 0)
+                property point lastPos: Qt.point(0, 0)
                 cursorShape: Qt.SizeAllCursor
-                onPressed: function(mouse) {
-                    clickPos = Qt.point(mouse.x, mouse.y)
+                
+                onPressed: (mouse) => {
+                    lastPos = Qt.point(mouse.x, mouse.y)
                 }
-                onPositionChanged: function(mouse) {
+                onPositionChanged: (mouse) => {
                     if (pressed) {
-                        root.x += (mouse.x - clickPos.x)
-                        root.y += (mouse.y - clickPos.y)
+                        var delta = Qt.point(mouse.x - lastPos.x, mouse.y - lastPos.y)
+                        root.x += delta.x
+                        root.y += delta.y
                     }
                 }
             }
@@ -123,16 +125,16 @@ Rectangle {
                 }
 
                 Rectangle {
-                    width: 24
-                    height: 24
-                    radius: 2
+                    width: 30
+                    height: 30
+                    radius: 4
                     color: closeMouseArea.containsMouse ? "#33ff0000" : "transparent"
                     border.color: theme.neonCyan
                     border.width: 1
 
                     Text {
                         text: "X"
-                        font.pixelSize: 14
+                        font.pixelSize: 16
                         font.bold: true
                         color: closeMouseArea.containsMouse ? "#ff4444" : theme.neonCyan
                         anchors.centerIn: parent
@@ -143,7 +145,9 @@ Rectangle {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
+                        z: 10 // 确保在拖动层之上
                         onClicked: {
+                            console.log("[ModelListPanel] 正在关闭面板")
                             root.visible = false
                             root.closed()
                         }
@@ -450,6 +454,35 @@ Rectangle {
                                         text: entityId
                                         font.pixelSize: 11; font.family: "Consolas"
                                         color: theme.neonCyan; anchors.centerIn: parent
+                                    }
+                                }
+
+                                // 数据按钮 (新增)
+                                Rectangle {
+                                    id: dataBtn
+                                    property bool isObserving: typeof ControlBridge !== "undefined" && ControlBridge.activeDataEntityId === entityId
+                                    Layout.preferredWidth: 44; Layout.preferredHeight: 24; radius: 3
+                                    color: isObserving ? theme.neonCyan : (dataBtnMouse.containsMouse ? "#2244bb" : "transparent")
+                                    border.color: isObserving ? theme.neonCyan : theme.neonCyan
+                                    border.width: 1
+
+                                    Text {
+                                        text: "数据"
+                                        font.pixelSize: 11; font.bold: true
+                                        color: dataBtn.isObserving ? "#000000" : (dataBtnMouse.containsMouse ? "#fff" : theme.neonCyan)
+                                        anchors.centerIn: parent
+                                    }
+
+                                    MouseArea {
+                                        id: dataBtnMouse
+                                        anchors.fill: parent; hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            console.log("[PlacedModel] 展示遥测数据 ID:" + entityId)
+                                            if (typeof ControlBridge !== "undefined") {
+                                                ControlBridge.showTelemetry(entityId)
+                                            }
+                                        }
                                     }
                                 }
 
