@@ -388,7 +388,12 @@ private:
     {
         std::string n = name;
         std::transform(n.begin(), n.end(), n.begin(), ::tolower);
-        static const std::string BASE = "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/3DModel/";
+        // 优先使用环境变量 MODELS_DIR，回退到 bin 旁边的 models/ 目录
+        static const std::string BASE = ([]() -> std::string {
+            const char* env = std::getenv("MODELS_DIR");
+            if (env && std::strlen(env) > 0) return std::string(env) + "/";
+            return (QCoreApplication::applicationDirPath() + "/models/").toStdString();
+        })();
         if (n.find("f-16") != std::string::npos || n.find("f16") != std::string::npos) return BASE + "F-16A.glb";
         if (n.find("su-27") != std::string::npos || n.find("su27") != std::string::npos) return BASE + "su-27.glb";
         if (n.find("aim") != std::string::npos || n.find("r-77") != std::string::npos) return BASE + "AIM-120.glb";
@@ -791,7 +796,10 @@ private:
         }
         else if (!g_appState.pendingModelType.isEmpty())
         {
-            modelFile = "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/3DModel/" + g_appState.pendingModelType.toStdString();
+            const char* envModels = std::getenv("MODELS_DIR");
+            std::string modelsDir = envModels ? std::string(envModels) + "/"
+                                              : (QCoreApplication::applicationDirPath() + "/models/").toStdString();
+            modelFile = modelsDir + g_appState.pendingModelType.toStdString();
         }
         else
         {
@@ -1076,7 +1084,13 @@ int main(int argc, char* argv[])
 
     // 动态解析 ROCKY_FILE_PATH
     // Rocky 需要 ROCKY_FILE_PATH 直接指向包含 shaders 的目录，即 install/share/rocky
-    QString rockySharePath = "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install/share/rocky";
+    // Rocky 资源目录：优先环境变量 ROCKY_SHARE_DIR，其次运行目录旁边的 share/rocky
+    QString rockySharePath = []() -> QString {
+        const char* env = std::getenv("ROCKY_SHARE_DIR");
+        if (env && std::strlen(env) > 0) return QString::fromUtf8(env);
+        return QString();
+    }();
+    if (rockySharePath.isEmpty()) rockySharePath = binDir + "/share/rocky"; // 默认回退
     QDir testDir(binDir);
     while (!testDir.isRoot())
     {
@@ -1203,7 +1217,10 @@ int main(int argc, char* argv[])
     dataManager->startUdpReceiver(19999); // 启动二进制 UDP 接收器
 
     ModelListModel* modelListModel = new ModelListModel(&app);
-    QString modelDir = "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/3DModel";
+    // 3D 模型目录：优先环境变量 MODELS_DIR，其次使用 bin 旁边的 models/ 目录
+    const char* envModelsDir = std::getenv("MODELS_DIR");
+    QString modelDir = envModelsDir ? QString::fromUtf8(envModelsDir)
+                                    : (binDir + "/models");
     modelListModel->loadFromDirectory(modelDir);
 
     auto* telemetryForwarder = new AcmiTelemetryForwarder(&app);
@@ -1278,7 +1295,7 @@ int main(int argc, char* argv[])
     qmlView->rootContext()->setContextProperty("ControlBridge", bridge);
     qmlView->rootContext()->setContextProperty("simModel", dataManager);
     qmlView->rootContext()->setContextProperty("modelListModel", modelListModel);
-    qmlView->setSource(QUrl::fromLocalFile(binDir + "/TechOverlay.qml"));
+    qmlView->setSource(QUrl::fromLocalFile(binDir + "/qml/TechOverlay.qml"));
 
     // 连接删除信号：面板删除模型时，同步移除场景中的3D节点
     QObject::connect(dataManager, &SimDataManager::entityRemoved, [editor, bridge, mapManipulator](const QString& id) {

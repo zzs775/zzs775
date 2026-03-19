@@ -21,8 +21,18 @@ set(VSGQT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root binary d
 set(QT_PACKAGE_NAME Qt6 CACHE STRING "Set Qt package name, i.e. Qt5 or Qt6.")
 
 
-list(APPEND CMAKE_PREFIX_PATH "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install")
-list(APPEND CMAKE_PREFIX_PATH "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share")
+# ── 依赖库搜索路径（根据本地环境修改或通过 cmake -DCMAKE_PREFIX_PATH=... 传入）──
+# 示例：
+#   list(APPEND CMAKE_PREFIX_PATH "D:/deps/rocky/install")
+#   list(APPEND CMAKE_PREFIX_PATH "D:/deps/rocky/build/vcpkg_installed/x64-windows/share")
+# 也可在 Qt Creator 的 CMake 配置页面中填写 CMAKE_PREFIX_PATH 变量。
+if(NOT DEFINED ENV{ROCKY_INSTALL_DIR})
+    message(STATUS "[vsgqtviewer] 提示: 未设置 ROCKY_INSTALL_DIR 环境变量。")
+    message(STATUS "  请通过 cmake -DCMAKE_PREFIX_PATH=<rocky_install_path> 指定 rocky 安装目录,")
+    message(STATUS "  或在 Qt Creator > 项目 > CMake 配置 中添加 CMAKE_PREFIX_PATH。")
+else()
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{ROCKY_INSTALL_DIR}")
+endif()
 
 find_package(vsg 1.1.13)
 

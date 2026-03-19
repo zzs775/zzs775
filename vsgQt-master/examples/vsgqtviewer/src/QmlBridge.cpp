@@ -83,11 +83,17 @@ void QmlBridge::showTelemetry(const QString& id)
         m_telemetryProcess = new QProcess(this);
     }
 
-    // 优先使用发行版路径，回退到开发路径
-    QString telemetryExe = "C:/Users/cfh12/Desktop/remote/appchart_merged.exe";
-    if (!QFile::exists(telemetryExe))
+    // 优先查找环境变量 TELEMETRY_EXE，其次在程序目录旁查找
+    QString telemetryExe;
+    const char* envExe = std::getenv("TELEMETRY_EXE");
+    if (envExe && std::strlen(envExe) > 0)
     {
-        telemetryExe = "C:/Users/cfh12/Desktop/work/Signal-level-simulation/code/remote-telemetry-display/build_release/Release/appchart_merged.exe";
+        telemetryExe = QString::fromUtf8(envExe);
+    }
+    else
+    {
+        // 尝试与主程序同目录
+        telemetryExe = QCoreApplication::applicationDirPath() + "/appchart_merged.exe";
     }
 
     if (QFile::exists(telemetryExe))

@@ -51,15 +51,22 @@ void ModelFactory::init(vsg::ref_ptr<vsg::Options> options)
         qDebug() << "    -> " << QString::fromStdString(p.string());
     }
 
-    // 字体候选列表（优先序排列）
+    // 字体候选列表（按优先顺序依次尝试）
+    // 相对路径由 VSG_FILE_PATH / vsgOptions->paths 解析，构建后资源复制到 bin/fonts/
+    QString binDir = QCoreApplication::applicationDirPath();
     QStringList fontPaths = {
-        "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/fonts/times.vsgb",
-        "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install/share/rocky/data/times.vsgb",
-        "C:/Windows/Fonts/simhei.ttf", 
-        "C:/Windows/Fonts/msyh.ttc",   
-        "C:/Windows/Fonts/arial.ttf",  
+        // 1. 运行目录旁的 fonts/ 子目录（POST_BUILD 会把字体复制过来）
+        binDir + "/fonts/times.vsgb",
+        binDir + "/fonts/SimHei.ttf",
+        // 2. Rocky share 旁的字体（如果用户配置了 ROCKY_SHARE_DIR）
+        QString::fromUtf8(std::getenv("ROCKY_SHARE_DIR") ? std::getenv("ROCKY_SHARE_DIR") : "") + "/data/times.vsgb",
+        // 3. Windows 系统字体回退
+        "C:/Windows/Fonts/simhei.ttf",
+        "C:/Windows/Fonts/msyh.ttc",
+        "C:/Windows/Fonts/arial.ttf",
+        // 4. VSG 相对路径（由 vsgOptions->paths 解析）
+        "fonts/times.vsgb",
         "fonts/SimHei.ttf",
-        "fonts/times.vsgb"
     };
 
     for (const auto& fontPath : fontPaths)

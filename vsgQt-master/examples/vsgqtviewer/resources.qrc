@@ -1,15 +1,15 @@
 <RCC>
     <qresource prefix="/images">
-        <file>top_banner_bg.png</file>
-        <file>btn_border.png</file>
+        <file>img/top_banner_bg.png</file>
+        <file>img/btn_border.png</file>
     </qresource>
     <qresource prefix="/">
-        <file>TechOverlay.qml</file>
-        <file>SciFiButton.qml</file>
-        <file>ModelListPanel.qml</file>
-        <file>ManagePanel.qml</file>
-        <file>TimelineBar.qml</file>
-        <file>WinBtn.qml</file>
-        <file>WindowControls.qml</file>
+        <file>qml/TechOverlay.qml</file>
+        <file>qml/SciFiButton.qml</file>
+        <file>qml/ModelListPanel.qml</file>
+        <file>qml/ManagePanel.qml</file>
+        <file>qml/TimelineBar.qml</file>
+        <file>qml/WinBtn.qml</file>
+        <file>qml/WindowControls.qml</file>
     </qresource>
 </RCC>
