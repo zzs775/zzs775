@@ -1,5 +1,6 @@
 #include "ModelFactory.h"
 #include <QFile>
+#include <QCoreApplication>
 #include <vsg/utils/ComputeBounds.h>
 
 ModelFactory* ModelFactory::instance()
