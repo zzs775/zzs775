@@ -4,121 +4,20 @@
     <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtviewer\vsgqtviewer_autogen\mocs_compilation_Debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\QmlBridge.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\ModelFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\ModelListModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\InstanceManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\SimDataManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\SimClock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtviewer\vsgqtviewer_autogen\EWIEGA46WW_Debug\qrc_resources.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtviewer\vsgqtviewer_autogen\mocs_compilation_Release.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtviewer\vsgqtviewer_autogen\EWIEGA46WW_Release\qrc_resources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtviewer\vsgqtviewer_autogen\mocs_compilation_MinSizeRel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtviewer\vsgqtviewer_autogen\EWIEGA46WW_MinSizeRel\qrc_resources.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtviewer\vsgqtviewer_autogen\mocs_compilation_RelWithDebInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\examples\vsgqtviewer\vsgqtviewer_autogen\EWIEGA46WW_RelWithDebInfo\qrc_resources.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\QmlBridge.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\ModelFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\ModelListModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\InstanceManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\SimData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\SimDataManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\SimClock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\AcmiUdpReceiver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\AcmiTelemetryForwarder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\StyleHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\build\CMakeFiles\61052b465f2b55656a9d8ef5edfe3d60\qrc_resources.cpp.rule">
-      <Filter>CMake Rules</Filter>
-    </CustomBuild>
     <CustomBuild Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\TechOverlay.qml">
-      <Filter>QML Files</Filter>
-    </None>
-    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\SciFiButton.qml">
-      <Filter>QML Files</Filter>
-    </None>
-    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\ManagePanel.qml">
-      <Filter>QML Files</Filter>
-    </None>
-    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\ModelListPanel.qml">
-      <Filter>QML Files</Filter>
-    </None>
-    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\TimelineBar.qml">
-      <Filter>QML Files</Filter>
-    </None>
-    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\WinBtn.qml">
-      <Filter>QML Files</Filter>
-    </None>
-    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\WindowControls.qml">
-      <Filter>QML Files</Filter>
-    </None>
-    <None Include="C:\Users\cfh12\Desktop\rocky_qt\vsgQt-(rubulid)\vsgQt-master\examples\vsgqtviewer\resources.qrc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="CMake Rules">
-      <UniqueIdentifier>{EC75DF22-4FE8-3AF3-9F77-1FA30FE69BF0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{5A4C5109-DE7C-332C-A252-1F059CDCE555}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="QML Files">
-      <UniqueIdentifier>{936720CE-5B69-35F8-A47F-252EE5F8FF0B}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{A3C23014-FEC4-3E9E-920D-F5C5BBF56F98}</UniqueIdentifier>
     </Filter>

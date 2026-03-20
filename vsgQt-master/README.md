@@ -180,29 +180,34 @@ vsgqtviewer.exe
 使用项目自带的 Python 脚本向主程序推送飞行数据（须提前安装 Python 3.x，无额外依赖）：
 
 ```bat
-# 极速灌送真实飞行数据（2v2 空战 .acmi）
-py examples\vsgqtviewer\py\acmi_replay_sender.py --fast --file examples\vsgqtviewer\data\2v2_flight.acmi
+# ★ 脚本路径：examples\vsgqtviewer\acmi_replay_sender.py
+# 请在项目根目录（vsgQt-master/）下打开终端运行：
 
-# 按 10 倍速回放（默认速度 10x）
-py examples\vsgqtviewer\py\acmi_replay_sender.py --file examples\vsgqtviewer\data\2v2_flight.acmi
+# 极速灌送真实飞行数据（瞬间将整个文件推入）
+py examples\vsgqtviewer\acmi_replay_sender.py --fast --file examples\vsgqtviewer\data\2v2_flight.acmi
 
-# 循环回放
-py examples\vsgqtviewer\py\acmi_replay_sender.py --fast --loop --file examples\vsgqtviewer\data\2v2_flight.acmi
+# 实时速度推流回放（可以看到完美的密级插帧平滑效果，推荐体验）
+py examples\vsgqtviewer\acmi_replay_sender.py --speed 1 --file examples\vsgqtviewer\data\2v2_flight.acmi
+
+# 循环极速推流
+py examples\vsgqtviewer\acmi_replay_sender.py --fast --loop --file examples\vsgqtviewer\data\2v2_flight.acmi
 ```
 
 | 参数 | 说明 |
 |------|------|
-| `--file` | 指定 .acmi 文件路径 |
-| `--fast` | 极速灌送（不等待时间间隔，适合快速查看全部数据）|
-| `--speed` | 回放速度倍率，默认 10x，设为 0 等同 --fast |
-| `--loop` | 循环播放 |
-| `--demo` | 自动生成演示数据并回放（无需任何 .acmi 文件）|
+| `--file` | 指定 .acmi 数据路径 |
+| `--fast` | 极速推送：瞬间填满程序数据缓冲，后续由程序按自身时钟控制播放速度 |
+| `--speed` | 实时推流模拟倍速，默认 10。若设 1 则是真实时间频率发送UDP包 |
+| `--loop` | 循环发送 |
+| `--demo` | 快速演示无需数据文件 |
+
+> ⚠️ **关于高倍速下"只能插一两帧"的说明：**
+> 如果您在界面点击了高倍速，这意味着真实的物理一秒钟内，模型要走完好几十秒的路程。根据渲染器固定帧率刷新规律，留给每段 0.2s 数据的总分配渲染时间极少，您必然只能看到它被采样一到两次帧画面。这属于正常的时空压缩，并非插值失效。
 
 ### 5.2 快速演示（无需 .acmi 文件）
 
 ```bat
-# 自动生成演示用对飞数据（2架飞机圆周运动）并立刻回放
-python examples\vsgqtviewer\py\acmi_replay_sender.py --demo
+py examples\vsgqtviewer\acmi_replay_sender.py --demo
 ```
 
 ### 5.3 遥测显示程序（可选）
@@ -272,7 +277,7 @@ A: 检查 `bin/models/` 目录是否存在且包含 `.glb` 文件。
 ACMI 数据中的机型名称需要与 `inferModelFile()` 函数中的关键词匹配（如 "F-16"、"Su-27"）。
 
 **Q: 缺少 DLL，程序启动报错？**  
-A: 运行 `windeployqt` 后再检查控制台报错信息，依照缺失的 DLL 名称从对应 install/bin 复制。
+A: 运行 `windeployqt` 后再检查控制台报错信息，依照缺失的 DLL 名称从对应 install/bin 复制,别忘了qml那个也要
 
 **Q: Qt Creator 里代码有大量红色下划线错误？**  
 A: 这是 clangd 语言服务器找不到头文件的误报，**不影响实际构建**。  

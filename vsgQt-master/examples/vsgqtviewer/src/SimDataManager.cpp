@@ -730,6 +730,9 @@ std::vector<InterpolatedPacket> SimDataManager::getInterpolatedData(double timeS
     // 计算插值系数 alpha (0.0 ~ 1.0)
     double denominator = f1.time - f0.time;
     double alpha = (denominator > 1e-6) ? (timeSec - f0.time) / denominator : 0.0;
+    // 【关键保护】钳位到 [0,1]，防止时钟轻微抖动导致 alpha 溢出，进而引起模型"前冲/后退"跳变
+    if (alpha < 0.0) alpha = 0.0;
+    if (alpha > 1.0) alpha = 1.0;
 
     // 遍历前一帧的所有实体，如果后一帧也有，则插值；否则保持前一帧
     for (const auto& [id, p0] : f0.entities)

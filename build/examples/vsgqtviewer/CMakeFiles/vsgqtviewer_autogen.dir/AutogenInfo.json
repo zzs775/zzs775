@@ -129,76 +129,13 @@
 		"C:/Program Files/CMake/share/cmake-4.2/Modules/FindPackageMessage.cmake",
 		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets.cmake",
 		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets-debug.cmake",
-		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets-release.cmake",
-		"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/resources.qrc"
+		"C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/build/vcpkg_installed/x64-windows/share/imgui/imgui-targets-release.cmake"
 	],
 	"CMAKE_SOURCE_DIR" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master",
 	"CROSS_CONFIG" : false,
 	"DEP_FILE" : "",
 	"DEP_FILE_RULE_NAME" : "",
-	"HEADERS" : 
-	[
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/AcmiTelemetryForwarder.h",
-			"MU",
-			"EWIEGA46WW/moc_AcmiTelemetryForwarder.cpp",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/AcmiUdpReceiver.h",
-			"MU",
-			"EWIEGA46WW/moc_AcmiUdpReceiver.cpp",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/InstanceManager.h",
-			"MU",
-			"EWIEGA46WW/moc_InstanceManager.cpp",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ModelFactory.h",
-			"MU",
-			"EWIEGA46WW/moc_ModelFactory.cpp",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ModelListModel.h",
-			"MU",
-			"EWIEGA46WW/moc_ModelListModel.cpp",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/QmlBridge.h",
-			"MU",
-			"EWIEGA46WW/moc_QmlBridge.cpp",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/SimClock.h",
-			"MU",
-			"EWIEGA46WW/moc_SimClock.cpp",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/SimData.h",
-			"MU",
-			"EWIEGA46WW/moc_SimData.cpp",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/SimDataManager.h",
-			"MU",
-			"EWIEGA46WW/moc_SimDataManager.cpp",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/StyleHelper.h",
-			"MU",
-			"EWIEGA46WW/moc_StyleHelper.cpp",
-			null
-		]
-	],
+	"HEADERS" : [],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
 	"INCLUDE_DIR" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/vsgqtviewer_autogen/include",
 	"INCLUDE_DIR_Debug" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/vsgqtviewer_autogen/include_Debug",
@@ -449,44 +386,7 @@
 	"SETTINGS_FILE_MinSizeRel" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/CMakeFiles/vsgqtviewer_autogen.dir/AutogenUsed_MinSizeRel.txt",
 	"SETTINGS_FILE_RelWithDebInfo" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/CMakeFiles/vsgqtviewer_autogen.dir/AutogenUsed_RelWithDebInfo.txt",
 	"SETTINGS_FILE_Release" : "C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/build/examples/vsgqtviewer/CMakeFiles/vsgqtviewer_autogen.dir/AutogenUsed_Release.txt",
-	"SOURCES" : 
-	[
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/InstanceManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ModelFactory.cpp",
-			"MU",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/ModelListModel.cpp",
-			"MU",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/QmlBridge.cpp",
-			"MU",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/SimClock.cpp",
-			"MU",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/SimDataManager.cpp",
-			"MU",
-			null
-		],
-		[
-			"C:/Users/cfh12/Desktop/rocky_qt/vsgQt-(rubulid)/vsgQt-master/examples/vsgqtviewer/main.cpp",
-			"MU",
-			null
-		]
-	],
+	"SOURCES" : [],
 	"UIC_OPTIONS" : [],
 	"UIC_SEARCH_PATHS" : [],
 	"UIC_SKIP" : [],

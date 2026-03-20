@@ -84,16 +84,11 @@ void QmlBridge::showTelemetry(const QString& id)
     }
 
     // 优先查找环境变量 TELEMETRY_EXE，其次在程序目录旁查找
-    QString telemetryExe;
+    QString telemetryExe = "C:/Users/cfh12/Desktop/remote/appchart_merged.exe";
     const char* envExe = std::getenv("TELEMETRY_EXE");
     if (envExe && std::strlen(envExe) > 0)
     {
         telemetryExe = QString::fromUtf8(envExe);
-    }
-    else
-    {
-        // 尝试与主程序同目录
-        telemetryExe = QCoreApplication::applicationDirPath() + "/appchart_merged.exe";
     }
 
     if (QFile::exists(telemetryExe))

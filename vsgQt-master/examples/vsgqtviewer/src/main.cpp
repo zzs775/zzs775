@@ -110,6 +110,7 @@ public:
 
         double lastDataReceivedTime = -1.0;
         bool isFadingOut = false;
+        glm::dvec3 lastEcefPos = glm::dvec3(0.0, 0.0, 0.0); // 上一帧 ECEF 坐标，用于空间跳变检测
     };
 
     std::unordered_map<std::string, EntityState> _entityStates;
@@ -274,10 +275,9 @@ public:
                 return cur + a * diff;
             };
 
-            // ★ 如果是在回放模式（已经有完美的精确 Lerp 结果），直接赋予坐标，绝不能再盖一次 EMA，否则会引发“弹簧追赶效应”导致高速剧烈抖动
-            if (!state.hasSmoothPos || isPlayback)
+            if (!state.hasSmoothPos)
             {
-                // 100% 信任最新坐标
+                // 首帧：直接初始化，防止从 (0,0,0) 开始 EMA 拖拽
                 state.smoothLon = packet.lon;
                 state.smoothLat = packet.lat;
                 state.smoothAlt = packet.alt;
@@ -288,16 +288,16 @@ public:
             }
             else
             {
-                // 只有直播 UDP 模式，因为不存在未来帧，才使用 EMA 弹性逼近
-                // 位置平滑（经纬高均为线性量，直接 EMA）
+                // 回放：packet 已是精确两帧插值结果，EMA 进一步磨平帧间微小噪声，消除前冲感
+                // UDP：EMA 弹性追踪实时坐标
                 state.smoothLon += renderAlpha * (packet.lon - state.smoothLon);
                 state.smoothLat += renderAlpha * (packet.lat - state.smoothLat);
                 state.smoothAlt += renderAlpha * (packet.alt - state.smoothAlt);
-                // 姿态平滑（角度走最短路径）
                 state.smoothYaw = smoothAngle(state.smoothYaw, packet.yaw, renderAlpha);
                 state.smoothPitch = smoothAngle(state.smoothPitch, packet.pitch, renderAlpha);
                 state.smoothRoll = smoothAngle(state.smoothRoll, packet.roll, renderAlpha);
             }
+
 
             // 【提取计算核心 ECEF】
             auto worldSRS = rocky::SRS::ECEF;
@@ -328,18 +328,23 @@ public:
                 }
                 vsg::dvec3 ecefVsg(ecefPos.x, ecefPos.y, ecefPos.z);
 
-                // 检测时间跳变（拖动进度条、回放跳转）
-                if (state.trackNode)
+                // 检测空间跳变（拖动进度条、回放跳转）
+                // 原先用 timeDiff，但 lastDataReceivedTime 每帧刷新导致 timeDiff 永远为 0
+                // 现在改用 ECEF 距离：瞬移超过 50km 即视为跳转，清除轨迹
+                if (state.trackNode && state.lastEcefPos.x != 0.0)
                 {
-                    double timeDiff = std::abs(currentTime - state.lastDataReceivedTime);
-                    if (state.hasSmoothPos && timeDiff > 1.0) // 跳变超过1秒就清轨迹
+                    glm::dvec3 prevPos(state.lastEcefPos.x, state.lastEcefPos.y, state.lastEcefPos.z);
+                    double jumpDist = glm::length(ecefPos - prevPos);
+                    if (jumpDist > 50000.0) // 50km
                     {
                         state.trackNode->clear();
                     }
                 }
+                state.lastEcefPos = glm::dvec3(ecefPos.x, ecefPos.y, ecefPos.z);
 
                 state.trackNode->addPoint(ecefVsg, currentTime);
                 state.trackNode->update();
+
             }
 
             // 4. [UI数据同步]
@@ -388,12 +393,7 @@ private:
     {
         std::string n = name;
         std::transform(n.begin(), n.end(), n.begin(), ::tolower);
-        // 优先使用环境变量 MODELS_DIR，回退到 bin 旁边的 models/ 目录
-        static const std::string BASE = ([]() -> std::string {
-            const char* env = std::getenv("MODELS_DIR");
-            if (env && std::strlen(env) > 0) return std::string(env) + "/";
-            return (QCoreApplication::applicationDirPath() + "/models/").toStdString();
-        })();
+        static const std::string BASE = "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/3DModel/";
         if (n.find("f-16") != std::string::npos || n.find("f16") != std::string::npos) return BASE + "F-16A.glb";
         if (n.find("su-27") != std::string::npos || n.find("su27") != std::string::npos) return BASE + "su-27.glb";
         if (n.find("aim") != std::string::npos || n.find("r-77") != std::string::npos) return BASE + "AIM-120.glb";
@@ -796,10 +796,7 @@ private:
         }
         else if (!g_appState.pendingModelType.isEmpty())
         {
-            const char* envModels = std::getenv("MODELS_DIR");
-            std::string modelsDir = envModels ? std::string(envModels) + "/"
-                                              : (QCoreApplication::applicationDirPath() + "/models/").toStdString();
-            modelFile = modelsDir + g_appState.pendingModelType.toStdString();
+            modelFile = "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/3DModel/" + g_appState.pendingModelType.toStdString();
         }
         else
         {
@@ -953,7 +950,8 @@ public:
         ImGuiIO& io = ImGui::GetIO();
         double w = io.DisplaySize.x;
         double h = io.DisplaySize.y;
-        if (w <= 0.0 || h <= 0.0) {
+        if (w <= 0.0 || h <= 0.0)
+        {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
             ImGui::PopStyleVar();
             return;
@@ -995,10 +993,11 @@ public:
                 if (distToModel < 1.0) continue;
                 vsg::dvec3 rayDir = toModel / distToModel;
 
-                double b    = 2.0 * vsg::dot(camWorld, rayDir);
+                double b = 2.0 * vsg::dot(camWorld, rayDir);
                 double cval = vsg::dot(camWorld, camWorld) - R * R;
                 double disc = b * b - 4.0 * cval;
-                if (disc > 0.0) {
+                if (disc > 0.0)
+                {
                     double sq = std::sqrt(disc);
                     double t1 = (-b - sq) * 0.5;
                     double t2 = (-b + sq) * 0.5;
@@ -1033,15 +1032,14 @@ public:
                 // === 5. 绘制标签（始终在模型投影点正上方） ===
                 const std::string& label = pair.first;
                 ImVec2 textSize = ImGui::CalcTextSize(label.c_str());
-                const float kOffY = 52.0f;  // 标签底部距模型投影点的像素距离
+                const float kOffY = 52.0f; // 标签底部距模型投影点的像素距离
                 const float kPadX = 6.0f;
                 const float kPadY = 4.0f;
 
                 // 标签左上角：水平居中于投影点，垂直位于投影点上方 kOffY 像素
                 ImVec2 textPos(
                     (float)xScreen - textSize.x * 0.5f,
-                    (float)yScreen - textSize.y - kOffY
-                );
+                    (float)yScreen - textSize.y - kOffY);
                 if (textPos.y < kPadY) textPos.y = kPadY; // 防止超出屏幕顶部
 
                 ImVec2 boxMin(textPos.x - kPadX, textPos.y - kPadY);
@@ -1084,13 +1082,7 @@ int main(int argc, char* argv[])
 
     // 动态解析 ROCKY_FILE_PATH
     // Rocky 需要 ROCKY_FILE_PATH 直接指向包含 shaders 的目录，即 install/share/rocky
-    // Rocky 资源目录：优先环境变量 ROCKY_SHARE_DIR，其次运行目录旁边的 share/rocky
-    QString rockySharePath = []() -> QString {
-        const char* env = std::getenv("ROCKY_SHARE_DIR");
-        if (env && std::strlen(env) > 0) return QString::fromUtf8(env);
-        return QString();
-    }();
-    if (rockySharePath.isEmpty()) rockySharePath = binDir + "/share/rocky"; // 默认回退
+    QString rockySharePath = "C:/Users/cfh12/Desktop/rocky_qt/rocky-main (1)/install/share/rocky";
     QDir testDir(binDir);
     while (!testDir.isRoot())
     {
@@ -1217,10 +1209,7 @@ int main(int argc, char* argv[])
     dataManager->startUdpReceiver(19999); // 启动二进制 UDP 接收器
 
     ModelListModel* modelListModel = new ModelListModel(&app);
-    // 3D 模型目录：优先环境变量 MODELS_DIR，其次使用 bin 旁边的 models/ 目录
-    const char* envModelsDir = std::getenv("MODELS_DIR");
-    QString modelDir = envModelsDir ? QString::fromUtf8(envModelsDir)
-                                    : (binDir + "/models");
+    QString modelDir = "C:/Users/cfh12/Desktop/rocky_qt/sim.vsg-master/sim.vsg/data/3DModel";
     modelListModel->loadFromDirectory(modelDir);
 
     auto* telemetryForwarder = new AcmiTelemetryForwarder(&app);
@@ -1258,7 +1247,7 @@ int main(int argc, char* argv[])
     tagsNode->updater = simUpdateHandler;
     renderImGui->add(tagsNode);
     scene->addChild(renderImGui);
-    
+
     // 把 ImGui 事件监听加入 viewer (处理屏幕分辨率自适应)
     auto imGuiEvents = rocky::SendEventsToImGuiContext::create(vsgWindow->windowAdapter, nullptr);
     viewer->addEventHandler(imGuiEvents);
@@ -1373,7 +1362,7 @@ int main(int argc, char* argv[])
 
             // 设置相机的观察角度和距离
             vp.range = rocky::Distance(300.0, rocky::Units::METERS); // ★ 缩小初始追踪距离，距离 5km -> 300m
-            vp.pitch = rocky::Angle(-15.0, rocky::Units::DEGREES);    // 俯视 15 度，更平缓
+            vp.pitch = rocky::Angle(-15.0, rocky::Units::DEGREES);   // 俯视 15 度，更平缓
             vp.heading = rocky::Angle(entity->yaw, rocky::Units::DEGREES);
 
             // 执行相机切换动画，时长 0.5 秒
@@ -1406,6 +1395,7 @@ int main(int argc, char* argv[])
     QTimer* renderTimer = new QTimer();
     auto lastFrameTime = std::chrono::steady_clock::now();
     QObject::connect(renderTimer, &QTimer::timeout, [vsgWindow, viewer, camera, scene, &app, editor, simUpdateHandler, mapManipulator, bridge, lastFrameTime, dataManager, clock, rockyContext, skyNode]() mutable {
+
         if (!vsgWindow || !viewer || !vsgWindow->isExposed() || vsgWindow->width() <= 0 || vsgWindow->height() <= 0)
         {
             return;
@@ -1413,22 +1403,16 @@ int main(int argc, char* argv[])
 
         try
         {
-            // if (ecsNode)
-            // {
-            //     ecsNode->update(rockyContext);
-            // }
-
             // 1. VSG 框架推进帧准备 (Advance)
             if (viewer->advanceToNextFrame())
             {
                 // 处理窗口事件（按钮点击、相机拖拽等）
                 viewer->handleEvents();
 
-                // ★【固定步长时钟推进】每帧前进 8ms，与 renderTimer->start(8) 完美匹配
-                // 无论 GPU 是否卡顿，时间推进永远是均匀的 0.008 秒
-                // 0.2s 数据间隔 / 0.008s 步长 = 精确 25 帧插值，永不波动
-                constexpr double FIXED_DT = 0.008; // 8ms = 125 FPS
+                // 固定步长推进模拟时钟（8ms / 125FPS），稳定基线
+                constexpr double FIXED_DT = 0.008;
                 if (clock) clock->tickFixed(FIXED_DT);
+
 
                 // 2. 动态模型逻辑更新 (The Heart of Simulation)
                 // 在这里计算飞机的最新位置、插值、显隐切换
@@ -1509,7 +1493,6 @@ int main(int argc, char* argv[])
 
                 auto now = std::chrono::steady_clock::now();
                 double ms = std::chrono::duration<double, std::milli>(now - lastFrameTime).count();
-                lastFrameTime = now;
                 int fps = ms > 0.0 ? static_cast<int>(1000.0 / ms) : 0;
                 bridge->updatePerf(ms, fps);
 

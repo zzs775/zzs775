@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <deque>
 #include <vector>
 
 #include "SimData.h"
@@ -148,7 +149,7 @@ private:
     std::unordered_map<std::string, double> m_entityLastUpdateTime;
 
     // ===== ACMI 缓冲回放数据 =====
-    std::vector<AcmiFrame> m_acmiFrames;       // 时间有序帧缓冲区（生产者写、消费者读）
+    std::deque<AcmiFrame> m_acmiFrames;        // 时间有序帧缓冲区（生产者写、消费者读），使用 deque 避免超大容量时的内存重分配卡死
     double m_currentParseTime = -1.0;          // 当前正在解析的 ACMI 时间戳
     double m_acmiTimeMinVal = 0.0;             // 已接收数据的最小时间
     double m_acmiTimeMaxVal = 0.0;             // 已接收数据的最大时间
