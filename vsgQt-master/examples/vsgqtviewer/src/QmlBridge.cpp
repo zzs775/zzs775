@@ -224,6 +224,12 @@ void QmlBridge::setSimClock(SimClock* clock)
 void QmlBridge::seekToProgress(double p)
 {
     if (_clock) _clock->seekToProgress(p);
+
+    // 回滚时清空遥测历史数据，防止旧数据残留
+    if (m_telemetryForwarder && !m_activeDataEntityId.isEmpty())
+    {
+        m_telemetryForwarder->sendResetPacket();
+    }
 }
 
 QString QmlBridge::timeStringAt(double p) const

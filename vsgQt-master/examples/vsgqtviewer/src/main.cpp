@@ -115,6 +115,18 @@ public:
 
     std::unordered_map<std::string, EntityState> _entityStates;
 
+    // ★ 零延迟渲染坐标缓存：相机 pointFunction 直接读取，消除经 SimDataManager 传递的 1 帧延迟
+    struct RenderedPosition { double lon = 0.0, lat = 0.0, alt = 0.0; };
+    std::unordered_map<std::string, RenderedPosition> _renderedPositions;
+
+    rocky::GeoPoint getRenderedGeoPoint(const std::string& id) const
+    {
+        auto it = _renderedPositions.find(id);
+        if (it != _renderedPositions.end())
+            return rocky::GeoPoint(rocky::SRS::WGS84, it->second.lon, it->second.lat, it->second.alt);
+        return rocky::GeoPoint(rocky::SRS::WGS84, 0, 0, 0);
+    }
+
     SimulationUpdateHandler(SimDataManager* dm, SimClock* clk = nullptr, vsg::ref_ptr<vsg::Group> entitiesRoot = nullptr, rocky::VSGContext context = {}, class AcmiTelemetryForwarder* fwd = nullptr) : dataManager(dm), simClock(clk), _entitiesRoot(entitiesRoot), rockyContext(context), forwarder(fwd) {}
 
     // 核心函数：每一帧渲染前执行，处理所有逻辑更新
@@ -299,7 +311,9 @@ public:
             }
 
 
-            // 【提取计算核心 ECEF】
+            // ★ 写入零延迟渲染坐标缓存
+            _renderedPositions[id] = { state.smoothLon, state.smoothLat, state.smoothAlt };
+
             auto worldSRS = rocky::SRS::ECEF;
             rocky::GeoPoint llaPoint(rocky::SRS::WGS84, state.smoothLon, state.smoothLat, state.smoothAlt);
             rocky::GeoPoint ecefPoint = llaPoint.transform(worldSRS);
@@ -365,8 +379,11 @@ public:
             // 5. [遥测数据转发]
             if (forwarder)
             {
-                // 使用仿真当前秒数，确保暂停同步
-                forwarder->forward(QString::fromStdString(id), currentTime, state.smoothLat, state.smoothLon, state.smoothAlt, state.smoothYaw, state.smoothPitch, state.smoothRoll);
+                // 使用相对播放秒数作为图表 X 轴，与时间轴一致
+                double telemetryTime = (isPlayback && simClock)
+                    ? simClock->currentSeconds()
+                    : currentTime;
+                forwarder->forward(QString::fromStdString(id), telemetryTime, state.smoothLat, state.smoothLon, state.smoothAlt, state.smoothYaw, state.smoothPitch, state.smoothRoll);
             }
         }
     }
@@ -1332,7 +1349,7 @@ int main(int argc, char* argv[])
 
     // --- [核心功能：相机跟随锁定] ---
     // 当用户在 QML 列表中点击“跟随”按钮时，QML 会发出 focusEntityRequested 信号
-    QObject::connect(bridge, &QmlBridge::focusEntityRequested, [dataManager, mapManipulator](const QString& id) {
+    QObject::connect(bridge, &QmlBridge::focusEntityRequested, [dataManager, mapManipulator, simUpdateHandler](const QString& id) {
         if (id.isEmpty())
         {
             // 如果 ID 为空，说明用户取消了锁定
@@ -1354,10 +1371,9 @@ int main(int argc, char* argv[])
 
             // 【关键点：动态绑定】原生 Rocky 的 tethering 机制
             // 传入一个函数指针，Rocky 每一帧渲染时都会调用它来获取目标飞机的最新位置
-            vp.pointFunction = [dataManager, idStr = id.toStdString()]() -> rocky::GeoPoint {
-                auto* e = dataManager->findEntityById(QString::fromStdString(idStr));
-                if (e) return rocky::GeoPoint(rocky::SRS::WGS84, e->lon, e->lat, e->alt);
-                return rocky::GeoPoint(rocky::SRS::WGS84, 0, 0, 0);
+            // 【关键点：零延迟动态绑定】直接读渲染缓存，消除 1 帧延迟导致的前冲
+            vp.pointFunction = [simUpdateHandler, idStr = id.toStdString()]() -> rocky::GeoPoint {
+                return simUpdateHandler->getRenderedGeoPoint(idStr);
             };
 
             // 设置相机的观察角度和距离
@@ -1406,16 +1422,14 @@ int main(int argc, char* argv[])
             // 1. VSG 框架推进帧准备 (Advance)
             if (viewer->advanceToNextFrame())
             {
-                // 处理窗口事件（按钮点击、相机拖拽等）
-                viewer->handleEvents();
+                // ★ 重排序：先更新仿真数据，再处理事件
+                // 这样 handleEvents 内的 updateTether/pointFunction 读到的是当前帧数据
 
-                // 固定步长推进模拟时钟（8ms / 125FPS），稳定基线
+                // 1. 固定步长推进模拟时钟
                 constexpr double FIXED_DT = 0.008;
                 if (clock) clock->tickFixed(FIXED_DT);
 
-
-                // 2. 动态模型逻辑更新 (The Heart of Simulation)
-                // 在这里计算飞机的最新位置、插值、显隐切换
+                // 2. 动态模型逻辑更新（写入 _renderedPositions 缓存）
                 {
                     vsg::FrameEvent fe;
                     simUpdateHandler->apply(fe);
@@ -1436,6 +1450,9 @@ int main(int argc, char* argv[])
                         skyNode->setDateTime(clock->currentDateTime());
                     }
                 }
+
+                // 3. 处理窗口事件（相机 tether 此时读取当前帧渲染坐标）
+                viewer->handleEvents();
 
                 // 3. 处理投影矩阵同步（防止窗口拉伸时地球变扁）
                 if (vsgWindow->windowAdapter)

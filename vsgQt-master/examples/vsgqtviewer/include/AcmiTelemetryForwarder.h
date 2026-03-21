@@ -48,6 +48,15 @@ public:
 
     QString activeEntityId() const { return _activeEntityId; }
 
+    // 回滚/Seek 时调用：发送 init 包清空遥测端数据，并重置速度计算状态
+    void sendResetPacket()
+    {
+        if (_activeEntityId.isEmpty()) return;
+        sendInitPacket(0.0);
+        _lastState.clear();  // 防止回滚后出现异常大速度
+        qDebug() << "[Telemetry] 发送 reset 包 (seek/rollback)";
+    }
+
     void forward(const QString& entityId, double timeSec, double lat, double lon, double alt,
                  double yaw, double pitch, double roll)
     {
